@@ -157,7 +157,7 @@ export default function App() {
         }`}
       >
         <p className="tracking-widest uppercase">
-          MUTE · ALBUM RELEASE PARTY · OCTUBRE 2025
+          MUTE · ALBUM RELEASE PARTY · OCTUBRE 2026
         </p>
 
         <p className="text-neutral-500 font-serif italic text-xs">

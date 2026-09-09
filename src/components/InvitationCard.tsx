@@ -22,7 +22,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   const [copied, setCopied] = useState(false);
 
   const guestName = guest?.name ? guest.name.toUpperCase() : 'DEJOTA';
-  const ticketCode = guest?.ticketCode || 'MUTE-2025';
+  const ticketCode = guest?.ticketCode || 'MUTE-2026';
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -52,7 +52,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nCódigo de Pase: ${ticketCode}\nLugar: SECRET LOCATION`
     );
     const location = encodeURIComponent('Secret Location, Colombia');
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20251024T230000Z/20251025T050000Z&details=${details}&location=${location}`;
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261024T230000Z/20261025T050000Z&details=${details}&location=${location}`;
   };
 
   return (
@@ -163,7 +163,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                   className="space-y-1.5 sm:space-y-2 font-typewriter text-neutral-800 text-[11px] sm:text-xs tracking-[0.2em] font-semibold select-none"
                   style={{ transform: 'translateZ(14px)' }}
                 >
-                  <p>DATE: OCTUBRE 2025</p>
+                  <p>DATE: OCTUBRE 2026</p>
                   <p>PLACE: SECRET LOCATION</p>
                   <p className="tracking-[0.16em] text-[10px]" style={{ fontSize: '10px' }}>RELEASE ALBUM PARTY MUTE DEJOTA</p>
                 </div>

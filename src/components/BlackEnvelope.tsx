@@ -222,7 +222,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   </div>
                   <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-4 sm:my-5" />
                   <div className="space-y-1.5 sm:space-y-2 font-typewriter text-neutral-800 text-[11px] sm:text-xs tracking-[0.2em] font-semibold select-none">
-                    <p>DATE: OCTUBRE 2025</p>
+                    <p>DATE: OCTUBRE 2026</p>
                     <p>PLACE: SECRET LOCATION</p>
                     <p className="tracking-[0.16em] text-[10px]" style={{ fontSize: '10px' }}>RELEASE ALBUM PARTY MUTE DEJOTA</p>
                   </div>
@@ -248,7 +248,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                     INVITACIÓN NO TRANSFERIBLE · SUJETA A LISTA
                   </p>
                   <p className="font-typewriter text-[8px] text-neutral-500 tracking-widest mt-1">
-                    PASE #{guest?.ticketCode || 'MUTE-2025-001'}
+                    PASE #{guest?.ticketCode || 'MUTE-2026-001'}
                   </p>
                 </div>
               </div>

@@ -6,82 +6,156 @@ interface AudioPlayerProps {
   defaultTrackUrl?: string;
 }
 
+const DB_NAME = 'MuteDejotaAudioDB';
+const STORE_NAME = 'audioStore';
+const AUDIO_KEY = 'user_track';
+
+// Helper to save audio blob into IndexedDB
+function saveAudioToIndexedDB(blob: Blob, name: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.put({ blob, name, updatedAt: Date.now() }, AUDIO_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Helper to load audio blob from IndexedDB
+function loadAudioFromIndexedDB(): Promise<{ blob: Blob; name: string } | null> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const getReq = store.get(AUDIO_KEY);
+      getReq.onsuccess = () => {
+        if (getReq.result && getReq.result.blob) {
+          resolve({ blob: getReq.result.blob, name: getReq.result.name });
+        } else {
+          resolve(null);
+        }
+      };
+      getReq.onerror = () => resolve(null);
+    };
+    request.onerror = () => resolve(null);
+  });
+}
+
 export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume] = useState(0.8);
+  const [volume] = useState(0.85);
   const [trackName, setTrackName] = useState('MUTE · DEJOTA');
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Initialize audio on mount and attempt autoplay
   useEffect(() => {
-    // Check if custom audio was saved previously
-    const savedCustomAudio = localStorage.getItem('mute_custom_audio_url');
-    let sourceUrl = savedCustomAudio || defaultTrackUrl;
+    let currentAudio: HTMLAudioElement | null = null;
+    let isDisposed = false;
 
-    // If sourceUrl is the default track and may not exist as a physical file,
-    // generate the dark gothic ambient audio URI
-    if (!savedCustomAudio) {
+    async function initAudio() {
+      let finalUrl = defaultTrackUrl;
+      let displayName = 'MUTE · DEJOTA';
+
+      // 1. Check if user previously saved an audio file in IndexedDB
       try {
-        sourceUrl = generateAtmosphericAudioUri();
-      } catch (err) {
-        console.warn('Fallback to default path:', err);
+        const stored = await loadAudioFromIndexedDB();
+        if (stored && stored.blob) {
+          finalUrl = URL.createObjectURL(stored.blob);
+          displayName = stored.name || 'MUTE · DEJOTA';
+        } else {
+          // 2. Check if /mute-track.mp3 is available on the server
+          try {
+            const headCheck = await fetch(defaultTrackUrl, { method: 'HEAD' });
+            if (!headCheck.ok) {
+              finalUrl = generateAtmosphericAudioUri();
+            }
+          } catch {
+            finalUrl = generateAtmosphericAudioUri();
+          }
+        }
+      } catch {
+        finalUrl = generateAtmosphericAudioUri();
       }
+
+      if (isDisposed) return;
+
+      setTrackName(displayName);
+
+      const audio = new Audio();
+      audio.src = finalUrl;
+      audio.loop = true;
+      audio.volume = volume;
+      audio.preload = 'auto';
+      audioRef.current = audio;
+      currentAudio = audio;
+
+      // Autoplay attempt function
+      const tryAutoPlay = () => {
+        if (!audioRef.current) return;
+        audioRef.current
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+            setHasUserInteracted(true);
+          })
+          .catch(() => {
+            setIsPlaying(false);
+            // Browser autoplay restrictions: trigger on next user touch or click
+            const handleGesture = () => {
+              if (audioRef.current && audioRef.current.paused) {
+                audioRef.current
+                  .play()
+                  .then(() => {
+                    setIsPlaying(true);
+                    setHasUserInteracted(true);
+                  })
+                  .catch(() => {});
+              }
+              window.removeEventListener('pointerdown', handleGesture);
+              window.removeEventListener('click', handleGesture);
+              window.removeEventListener('touchstart', handleGesture);
+              window.removeEventListener('keydown', handleGesture);
+            };
+
+            window.addEventListener('pointerdown', handleGesture, { once: true });
+            window.addEventListener('click', handleGesture, { once: true });
+            window.addEventListener('touchstart', handleGesture, { once: true });
+            window.addEventListener('keydown', handleGesture, { once: true });
+          });
+      };
+
+      tryAutoPlay();
     }
 
-    const audio = new Audio();
-    audio.src = sourceUrl;
-    audio.loop = true;
-    audio.volume = volume;
-    audio.preload = 'auto';
-    audioRef.current = audio;
-
-    // Attempt autoplay immediately
-    const attemptPlay = () => {
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          setHasUserInteracted(true);
-        })
-        .catch(() => {
-          // Autoplay blocked by browser policy; wait for first user gesture
-          setIsPlaying(false);
-          const handleFirstInteraction = () => {
-            if (audioRef.current && audioRef.current.paused) {
-              audioRef.current.play()
-                .then(() => {
-                  setIsPlaying(true);
-                  setHasUserInteracted(true);
-                })
-                .catch(() => {});
-            }
-            window.removeEventListener('pointerdown', handleFirstInteraction);
-            window.removeEventListener('click', handleFirstInteraction);
-            window.removeEventListener('touchstart', handleFirstInteraction);
-            window.removeEventListener('keydown', handleFirstInteraction);
-          };
-
-          window.addEventListener('pointerdown', handleFirstInteraction, { once: true });
-          window.addEventListener('click', handleFirstInteraction, { once: true });
-          window.addEventListener('touchstart', handleFirstInteraction, { once: true });
-          window.addEventListener('keydown', handleFirstInteraction, { once: true });
-        });
-    };
-
-    attemptPlay();
-
-    const handleEnded = () => {
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    };
-
-    audio.addEventListener('ended', handleEnded);
+    initAudio();
 
     return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
+      isDisposed = true;
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = '';
+      }
       audioRef.current = null;
     };
   }, [defaultTrackUrl, volume]);
@@ -93,7 +167,8 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play()
+      audioRef.current
+        .play()
         .then(() => {
           setIsPlaying(true);
           setHasUserInteracted(true);
@@ -113,27 +188,35 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
   };
 
   // Handle custom MP3 file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const fileUrl = URL.createObjectURL(file);
+    const cleanedName = file.name.replace(/\.[^/.]+$/, '').toUpperCase();
+
+    // Save to IndexedDB for persistent automatic playback across sessions
+    try {
+      await saveAudioToIndexedDB(file, cleanedName);
+    } catch (err) {
+      console.warn('Could not persist audio to IndexedDB:', err);
+    }
+
     if (audioRef.current) {
       audioRef.current.src = fileUrl;
-      audioRef.current.play()
+      audioRef.current
+        .play()
         .then(() => {
           setIsPlaying(true);
           setHasUserInteracted(true);
-          setTrackName(file.name.replace(/\.[^/.]+$/, '').toUpperCase());
+          setTrackName(cleanedName);
         })
         .catch(() => {});
     }
   };
 
   return (
-    <div
-      id="ambient-audio-player"
-      className="relative flex items-center"
-    >
+    <div id="ambient-audio-player" className="relative flex items-center">
       <input
         ref={fileInputRef}
         type="file"
@@ -201,7 +284,7 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
             <span className="text-[10px] sm:text-[11px] font-mono tracking-widest text-neutral-200 group-hover:text-red-300 transition-colors uppercase font-medium leading-none">
               {isPlaying ? 'SONANDO' : 'MÚSICA'}
             </span>
-            <span className="text-[8px] font-mono tracking-wider text-neutral-400 leading-none mt-0.5 hidden sm:inline">
+            <span className="text-[8px] font-mono tracking-wider text-neutral-400 leading-none mt-0.5 hidden sm:inline max-w-[120px] truncate">
               {trackName}
             </span>
           </div>
@@ -222,19 +305,19 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
           )}
         </button>
 
-        {/* Change MP3 button */}
+        {/* Upload custom MP3 button */}
         <button
           id="btn-load-custom-mp3"
           onClick={() => fileInputRef.current?.click()}
-          className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-neutral-300 transition-colors cursor-pointer"
-          title="Cargar archivo MP3 propio"
-          aria-label="Cargar MP3"
+          className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-red-400 transition-colors cursor-pointer"
+          title="Cargar tu canción (MP3)"
+          aria-label="Cargar tu canción MP3"
         >
           <Upload className="w-3 h-3" />
         </button>
       </div>
 
-      {/* Floating Prompt if browser blocked initial autoplay until first click */}
+      {/* Subtle indicator if browser autoplay requires initial touch */}
       {!hasUserInteracted && !isPlaying && (
         <div
           onClick={togglePlay}
