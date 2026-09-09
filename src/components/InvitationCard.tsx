@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { GuestRegistration } from '../types';
 import { use3DTilt } from '../hooks/use3DTilt';
 import { Calendar, Share2, Check, ArrowDownToLine, RefreshCw } from 'lucide-react';
-import { motion } from 'motion/react';
 
 interface InvitationCardProps {
   guest: GuestRegistration | null;
@@ -19,7 +18,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   isExpanded = true,
   enableTilt = true,
 }) => {
-  const { elementRef, tilt } = use3DTilt({ maxTilt: 16, disabled: !enableTilt });
+  const { elementRef, tilt } = use3DTilt({ maxTilt: 18, disabled: !enableTilt });
   const [copied, setCopied] = useState(false);
 
   const guestName = guest?.name ? guest.name.toUpperCase() : 'DEJOTA';
@@ -34,7 +33,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           url: window.location.href,
         });
       } catch (e) {
-        // Ignored or dismissed
+        // Dismissed
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -58,7 +57,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
   return (
     <div className={`flex flex-col items-center w-full max-w-md mx-auto ${className}`}>
-      
       {/* 3D Interactive Stage Perspective Container */}
       <div
         className="w-full flex justify-center perspective-1000 py-2 cursor-grab active:cursor-grabbing select-none"
@@ -70,11 +68,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           className="relative w-full max-w-[340px] sm:max-w-[380px] preserve-3d"
           style={{
             transform: enableTilt
-              ? `perspective(1200px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) translate3d(${tilt.translateX}px, ${tilt.translateY}px, ${tilt.isInteracting ? tilt.translateZ : 0}px)`
+              ? `perspective(1200px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) translate3d(${tilt.translateX}px, ${tilt.translateY}px, ${tilt.isInteracting || tilt.isGyroActive ? tilt.translateZ : 0}px)`
               : 'none',
             transition: tilt.isInteracting
-              ? 'transform 0.08s ease-out'
-              : 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
+              ? 'transform 0.05s ease-out'
+              : 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
@@ -83,13 +81,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
           <div
             className="absolute -inset-3 bg-black/60 rounded-sm blur-2xl pointer-events-none"
             style={{
-              transform: `translate3d(${-tilt.rotateY * 2.2 - tilt.translateX}px, ${26 + tilt.rotateX * 1.5 - tilt.translateY}px, -40px) scale(${tilt.isInteracting ? 1.05 : 0.95})`,
-              opacity: tilt.isInteracting ? 0.85 : 0.45,
-              transition: tilt.isInteracting ? 'transform 0.08s ease-out, opacity 0.15s' : 'transform 0.55s ease-out, opacity 0.3s',
+              transform: `translate3d(${-tilt.rotateY * 2.2 - tilt.translateX}px, ${26 + tilt.rotateX * 1.5 - tilt.translateY}px, -40px) scale(${tilt.isInteracting || tilt.isGyroActive ? 1.05 : 0.95})`,
+              opacity: tilt.isInteracting || tilt.isGyroActive ? 0.85 : 0.45,
+              transition: tilt.isInteracting ? 'transform 0.05s ease-out, opacity 0.15s' : 'transform 0.4s ease-out, opacity 0.3s',
             }}
           />
 
-          {/* Physical Parchment Invitation Card (Direct match to carta.png) */}
+          {/* Physical Parchment Invitation Card */}
           <div
             className="w-full relative rounded-sm border border-[#d6cebf] bg-[#f8f5ee] text-neutral-900 overflow-hidden shadow-2xl preserve-3d"
             style={{
@@ -110,12 +108,12 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             {/* Paper Grain Vignette Border */}
             <div className="absolute inset-0 border border-neutral-950/10 pointer-events-none m-2 sm:m-3" />
 
-            {/* Dynamic Specular Lighting Sheen responding to Mouse & Gyroscope */}
+            {/* Dynamic Specular Lighting Sheen responding to Mouse, Touch & Gyroscope */}
             <div
               className="absolute inset-0 pointer-events-none mix-blend-overlay transition-opacity duration-150"
               style={{
                 background: `radial-gradient(circle 380px at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 40%, transparent 75%)`,
-                opacity: tilt.isInteracting ? 0.85 : 0.3,
+                opacity: tilt.isInteracting || tilt.isGyroActive ? 0.85 : 0.3,
               }}
             />
 
@@ -149,18 +147,18 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                   You&apos;re invited
                 </h2>
 
-                {/* Recipient: PARA: [GUEST NAME] */}
+                {/* Recipient: TO: [GUEST NAME] */}
                 <div
                   className="mt-4 sm:mt-5 text-[#6c1010] font-serif font-bold tracking-[0.26em] uppercase select-none"
                   style={{ fontSize: '17px', transform: 'translateZ(20px)' }}
                 >
-                  PARA: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guestName}</span>
+                  TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guestName}</span>
                 </div>
 
                 {/* Delicate hairline divider */}
                 <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-4 sm:my-5" />
 
-                {/* Event Metadata (Monospaced / Typewriter) */}
+                {/* Event Metadata */}
                 <div
                   className="space-y-1.5 sm:space-y-2 font-typewriter text-neutral-800 text-[11px] sm:text-xs tracking-[0.2em] font-semibold select-none"
                   style={{ transform: 'translateZ(14px)' }}
@@ -191,7 +189,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 className="w-full flex flex-col items-center pb-1 preserve-3d"
                 style={{ transform: 'translateZ(22px)' }}
               >
-                {/* The Emblem: Double circle with Gothic 'M' (Exact match to carta.png) */}
+                {/* The Emblem: Double circle with Gothic 'M' */}
                 <div
                   id="card-gothic-emblem"
                   className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-3 shadow-inner"
@@ -209,7 +207,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                   id="card-footer-notice"
                   className="font-typewriter text-[9px] sm:text-[10px] tracking-[0.24em] text-neutral-700 font-semibold uppercase select-none"
                 >
-                  INVITACIÓN NO TRANSFERIBLE • SUJETA A LISTA
+                  INVITACIÓN NO TRANSFERIBLE · SUJETA A LISTA
                 </p>
 
                 {/* Ticket Code Reference */}

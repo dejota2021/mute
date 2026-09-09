@@ -34,7 +34,6 @@ export function playPaperTearSound(): void {
       const white = Math.random() * 2 - 1;
       const brown = (lastOut + 0.05 * white) / 1.05;
       lastOut = brown;
-
       // Micro-crackle spikes for ripping fibers
       const crackle = Math.random() > 0.92 ? (Math.random() - 0.5) * 1.6 : 0;
       data[i] = brown * 0.35 + crackle * 0.65;

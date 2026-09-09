@@ -53,7 +53,6 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     if (!credential?.accessToken) {
       throw new Error('No se pudo obtener el token de acceso de Google Sheets');
     }
-
     cachedAccessToken = credential.accessToken;
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {

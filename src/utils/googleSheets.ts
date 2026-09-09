@@ -8,6 +8,12 @@ const STORAGE_KEY_CURRENT_GUEST = 'mute_dejota_current_guest';
 export const DEFAULT_SPREADSHEET_ID = '1MftaLSnZMugyzBkfzFuRT5lWAFee-PTZnPp56nzeA24';
 export const DEFAULT_SPREADSHEET_URL = `https://docs.google.com/spreadsheets/d/${DEFAULT_SPREADSHEET_ID}/edit`;
 
+// Webhook interno preconfigurado oficial proporcionado por el usuario.
+export const INTERNAL_WEBHOOK_URL: string = (
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GOOGLE_SHEETS_WEBHOOK_URL) ||
+  'https://script.google.com/macros/s/AKfycbxHPKoqbFi3xYov9YYs_QHc_swQfo3-zcOA92a4IzJmtfEPflZDGr712AI57tRekodb/exec'
+).trim();
+
 export function getSavedConfig(): GoogleSheetsConfig {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
@@ -15,6 +21,7 @@ export function getSavedConfig(): GoogleSheetsConfig {
       const parsed = JSON.parse(raw);
       return {
         ...parsed,
+        webhookUrl: (parsed.webhookUrl && parsed.webhookUrl.trim().length > 0) ? parsed.webhookUrl.trim() : INTERNAL_WEBHOOK_URL,
         spreadsheetId: parsed.spreadsheetId || DEFAULT_SPREADSHEET_ID,
         spreadsheetUrl: parsed.spreadsheetUrl || DEFAULT_SPREADSHEET_URL,
         autoSync: true,
@@ -25,7 +32,7 @@ export function getSavedConfig(): GoogleSheetsConfig {
     console.error('Error loading sheets config', e);
   }
   return {
-    webhookUrl: '',
+    webhookUrl: INTERNAL_WEBHOOK_URL,
     spreadsheetId: DEFAULT_SPREADSHEET_ID,
     spreadsheetUrl: DEFAULT_SPREADSHEET_URL,
     spreadsheetTitle: 'MUTE DEJOTA - Registro de Invitados',
@@ -93,7 +100,38 @@ export async function submitRegistration(name: string, email: string): Promise<{
   let synced = false;
   let message = 'Registrado exitosamente';
 
-  if (config.spreadsheetId) {
+  const webhookToUse = (config.webhookUrl && config.webhookUrl.trim().length > 0)
+    ? config.webhookUrl.trim()
+    : INTERNAL_WEBHOOK_URL;
+
+  if (webhookToUse) {
+    try {
+      // Send to Google Sheets Apps Script Webhook
+      // Content-Type: text/plain avoids CORS preflight OPTIONS in Google Apps Script Web Apps
+      await fetch(webhookToUse, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({
+          id: newGuest.id,
+          name: newGuest.name,
+          email: newGuest.email,
+          ticketCode: newGuest.ticketCode,
+          registeredAt: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+          userAgent: navigator.userAgent,
+        }),
+      });
+      synced = true;
+      newGuest.syncedToGoogleSheets = true;
+      message = 'Sincronizado con Google Sheets';
+    } catch (err) {
+      console.warn('Could not sync to Google Sheets webhook directly:', err);
+    }
+  }
+
+  if (!synced && config.spreadsheetId) {
     try {
       const apiSuccess = await appendGuestToGoogleSheet(config.spreadsheetId, newGuest);
       if (apiSuccess) {
@@ -106,39 +144,8 @@ export async function submitRegistration(name: string, email: string): Promise<{
     }
   }
 
-  if (!synced && config.webhookUrl && config.webhookUrl.trim().length > 0) {
-    try {
-      // Send to Google Sheets Apps Script Webhook
-      // Using no-cors ensures submission succeeds through Google Apps Script redirects
-      await fetch(config.webhookUrl.trim(), {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: newGuest.id,
-          name: newGuest.name,
-          email: newGuest.email,
-          ticketCode: newGuest.ticketCode,
-          registeredAt: new Date().toLocaleString('es-ES', { timeZone: 'America/Bogota' }),
-          userAgent: navigator.userAgent,
-        }),
-      });
-
-      synced = true;
-      newGuest.syncedToGoogleSheets = true;
-      message = 'Sincronizado con Google Sheets automáticamente';
-    } catch (err) {
-      console.warn('Could not sync to Google Sheets webhook directly:', err);
-      synced = false;
-      message = 'Guardado localmente. Pendiente sincronización con Google Sheets.';
-    }
-  }
-
   // Save in local guests list
   const currentList = getRegisteredGuests();
-  // Avoid duplicate email or append
   const updatedList = [newGuest, ...currentList.filter(g => g.email !== newGuest.email)];
   localStorage.setItem(STORAGE_KEY_GUESTS, JSON.stringify(updatedList));
   setCurrentGuest(newGuest);

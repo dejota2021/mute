@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Play, Pause, Music, Upload } from 'lucide-react';
+import { generateAtmosphericAudioUri } from '../utils/audioGenerator';
 
 interface AudioPlayerProps {
   defaultTrackUrl?: string;
@@ -8,10 +9,9 @@ interface AudioPlayerProps {
 export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.8);
-  const [trackName, setTrackName] = useState('MUTE • DEJOTA');
+  const [volume] = useState(0.8);
+  const [trackName, setTrackName] = useState('MUTE · DEJOTA');
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -19,7 +19,17 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
   useEffect(() => {
     // Check if custom audio was saved previously
     const savedCustomAudio = localStorage.getItem('mute_custom_audio_url');
-    const sourceUrl = savedCustomAudio || defaultTrackUrl;
+    let sourceUrl = savedCustomAudio || defaultTrackUrl;
+
+    // If sourceUrl is the default track and may not exist as a physical file,
+    // generate the dark gothic ambient audio URI
+    if (!savedCustomAudio) {
+      try {
+        sourceUrl = generateAtmosphericAudioUri();
+      } catch (err) {
+        console.warn('Fallback to default path:', err);
+      }
+    }
 
     const audio = new Audio();
     audio.src = sourceUrl;
@@ -36,8 +46,7 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
           setHasUserInteracted(true);
         })
         .catch(() => {
-          // Autoplay was blocked by browser security policy.
-          // Listen for first user gesture anywhere on the window.
+          // Autoplay blocked by browser policy; wait for first user gesture
           setIsPlaying(false);
           const handleFirstInteraction = () => {
             if (audioRef.current && audioRef.current.paused) {
@@ -75,12 +84,11 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
       audio.pause();
       audioRef.current = null;
     };
-  }, [defaultTrackUrl]);
+  }, [defaultTrackUrl, volume]);
 
   // Handle play / pause toggle
   const togglePlay = () => {
     if (!audioRef.current) return;
-
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -108,7 +116,6 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const fileUrl = URL.createObjectURL(file);
     if (audioRef.current) {
       audioRef.current.src = fileUrl;
@@ -126,8 +133,6 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
     <div
       id="ambient-audio-player"
       className="relative flex items-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <input
         ref={fileInputRef}
@@ -192,13 +197,12 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
               style={{ animationDelay: '200ms' }}
             />
           </div>
-
           <div className="flex flex-col text-left">
             <span className="text-[10px] sm:text-[11px] font-mono tracking-widest text-neutral-200 group-hover:text-red-300 transition-colors uppercase font-medium leading-none">
               {isPlaying ? 'SONANDO' : 'MÚSICA'}
             </span>
             <span className="text-[8px] font-mono tracking-wider text-neutral-400 leading-none mt-0.5 hidden sm:inline">
-              MUTE • DEJOTA
+              {trackName}
             </span>
           </div>
         </button>
@@ -237,7 +241,7 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
           className="absolute right-0 -bottom-9 whitespace-nowrap px-2.5 py-1 rounded bg-[#1a0505] border border-[#6c1010]/80 text-[10px] font-mono tracking-wide text-red-200 shadow-lg cursor-pointer animate-pulse z-50 flex items-center gap-1.5"
         >
           <Music className="w-2.5 h-2.5 text-red-400" />
-          <span>Toca aquí o la pantalla para escuchar</span>
+          <span>Toca aquí para escuchar</span>
         </div>
       )}
     </div>

@@ -19,6 +19,9 @@
   .perspective-1000 {
     perspective: 1000px;
   }
+  .perspective-1400 {
+    perspective: 1400px;
+  }
   .preserve-3d {
     transform-style: preserve-3d;
   }
@@ -50,3 +53,4 @@
 .seal-glow {
   animation: seal-pulse 3s infinite ease-in-out;
 }
+

@@ -10,7 +10,6 @@ import {
   initAuth,
   googleSignIn,
   logout,
-  getAccessToken,
   createMuteSpreadsheet,
   appendGuestToGoogleSheet,
   extractSpreadsheetId,
@@ -23,7 +22,6 @@ import {
   Copy,
   ArrowLeft,
   Download,
-  ShieldCheck,
   AlertCircle,
   Search,
   Trash2,
@@ -31,7 +29,6 @@ import {
   Users,
   KeyRound,
   RefreshCw,
-  Send,
   PlusCircle,
   LogOut,
   Sparkles,
@@ -127,7 +124,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
       setConfig(updatedConfig);
       setSheetInputUrl(spreadsheetUrl);
       saveConfig(updatedConfig);
-
       setActionNotice({
         type: 'success',
         text: '¡Hoja creada en tu Google Drive! Los nuevos registros se sincronizarán allí directamente.',
@@ -151,7 +147,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
       });
       return;
     }
-
     const id = extractSpreadsheetId(sheetInputUrl);
     const updatedConfig: GoogleSheetsConfig = {
       ...config,
@@ -175,11 +170,9 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
       });
       return;
     }
-
     setIsSyncingAll(true);
     setActionNotice(null);
     let successCount = 0;
-
     try {
       for (const guest of guests) {
         const ok = await appendGuestToGoogleSheet(config.spreadsheetId, guest);
@@ -188,11 +181,8 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
           successCount++;
         }
       }
-
-      // Update guests state & storage
       setGuests([...guests]);
       localStorage.setItem('mute_dejota_guests', JSON.stringify(guests));
-
       setActionNotice({
         type: 'success',
         text: `¡${successCount} de ${guests.length} invitados sincronizados con Google Sheets!`,
@@ -215,10 +205,8 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
       });
       return;
     }
-
     setIsTestingWebhook(true);
     setWebhookTestResult(null);
-
     try {
       await fetch(config.webhookUrl.trim(), {
         method: 'POST',
@@ -232,7 +220,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
           registeredAt: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
         }),
       });
-
       setWebhookTestResult({
         success: true,
         message: '¡Prueba enviada! Verifica tu Google Sheet para ver la nueva fila.',
@@ -257,7 +244,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
 
   const appsScriptCode = `function doPost(e) {
   try {
-    // Hoja oficial MUTE DEJOTA
     var ss = SpreadsheetApp.openById("${config.spreadsheetId || '1MftaLSnZMugyzBkfzFuRT5lWAFee-PTZnPp56nzeA24'}");
     var sheet = ss.getActiveSheet();
     var data = JSON.parse(e.postData.contents);
@@ -316,7 +302,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
             </p>
           </div>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             onClick={() => exportToCSV(guests)}
@@ -350,14 +335,13 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
             onClick={() => setActionNotice(null)}
             className="text-neutral-400 hover:text-white"
           >
-            ✕
+            ×
           </button>
         </div>
       )}
 
-      {/* Main Grid: Direct Google OAuth Integration (Primary) */}
+      {/* Main Grid: Direct Google OAuth Integration */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        
         {/* Left Column: Direct Google Sheets API Integration */}
         <div className="lg:col-span-7 bg-neutral-900/90 border border-neutral-800 rounded-xl p-6 shadow-xl space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80">
@@ -381,7 +365,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                 Inicia sesión con tu cuenta de Google para crear o sincronizar automáticamente las
                 confirmaciones de asistencia en tu propio <strong>Google Sheets</strong>.
               </p>
-
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <GoogleSignInButton
                   onClick={handleGoogleSignIn}
@@ -389,7 +372,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                   text={isLoggingIn ? 'Conectando...' : 'Iniciar Sesión con Google'}
                 />
               </div>
-
               {authError && (
                 <div className="p-3 bg-red-950/50 border border-red-800 rounded-lg text-xs font-mono text-red-300 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
@@ -419,7 +401,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                     <p className="text-[11px] font-mono text-neutral-400">{currentUser.email}</p>
                   </div>
                 </div>
-
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white text-xs font-mono transition-colors"
@@ -437,7 +418,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
               2. Hoja de Cálculo en Google Drive:
             </h3>
 
-            {/* If a spreadsheet is already linked */}
             {config.spreadsheetId ? (
               <div className="p-4 bg-emerald-950/30 border border-emerald-800/60 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
@@ -457,13 +437,11 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                     </a>
                   )}
                 </div>
-
                 <div className="text-xs font-mono text-neutral-300 space-y-1">
                   <p>
                     <strong>ID:</strong> <code className="text-neutral-400">{config.spreadsheetId}</code>
                   </p>
                 </div>
-
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button
                     onClick={handleSyncAllGuests}
@@ -503,7 +481,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                     </span>
                   </button>
                 </div>
-
                 <div className="relative flex py-2 items-center">
                   <div className="flex-grow border-t border-neutral-800"></div>
                   <span className="flex-shrink mx-4 text-[10px] font-mono uppercase text-neutral-500">
@@ -511,7 +488,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                   </span>
                   <div className="flex-grow border-t border-neutral-800"></div>
                 </div>
-
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -548,12 +524,10 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                 <span>{copiedScript ? 'Copiado' : 'Copiar'}</span>
               </button>
             </div>
-
             <p className="text-xs text-neutral-400 font-sans mb-3 leading-relaxed">
               Si prefieres que no requiera inicio de sesión con Google en el navegador, puedes usar
               un Webhook público de Apps Script como canal directo:
             </p>
-
             <div className="space-y-2">
               <label className="block text-[11px] font-mono text-neutral-400 uppercase">
                 URL del Webhook (Google Apps Script):
@@ -578,7 +552,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                   {isTestingWebhook ? 'Probando...' : 'Probar'}
                 </button>
               </div>
-
               {webhookTestResult && (
                 <div
                   className={`p-2.5 rounded-lg text-xs font-mono flex items-start gap-2 ${
@@ -597,7 +570,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
               )}
             </div>
           </div>
-
           <div className="pt-2">
             <pre className="p-3 bg-neutral-950 border border-neutral-800 rounded-lg text-[10px] font-mono text-emerald-400/80 max-h-32 overflow-y-auto">
               {appsScriptCode}
@@ -618,7 +590,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -630,7 +601,6 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
                 className="pl-9 pr-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-lg text-xs font-mono text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:border-neutral-700 w-56 sm:w-64"
               />
             </div>
-
             {guests.length > 0 && (
               <button
                 onClick={handleClearGuests}

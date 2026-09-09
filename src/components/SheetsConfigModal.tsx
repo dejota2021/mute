@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { GoogleSheetsConfig, GuestRegistration } from '../types';
+import { GoogleSheetsConfig } from '../types';
 import { getSavedConfig, saveConfig, getRegisteredGuests, exportToCSV } from '../utils/googleSheets';
-import { X, Check, Copy, ExternalLink, Download, FileSpreadsheet, ShieldCheck, AlertCircle } from 'lucide-react';
+import { X, Check, Copy, Download, FileSpreadsheet, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface SheetsConfigModalProps {
   isOpen: boolean;
@@ -35,10 +35,8 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
       setTestResult({ success: false, message: 'Por favor ingresa una URL de Google Apps Script' });
       return;
     }
-
     setIsTesting(true);
     setTestResult(null);
-
     try {
       await fetch(config.webhookUrl.trim(), {
         method: 'POST',
@@ -52,7 +50,6 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
           date: new Date().toISOString(),
         }),
       });
-
       setTestResult({
         success: true,
         message: '¡Petición enviada exitosamente! Revisa tu Google Sheet para confirmar la nueva fila.',
@@ -74,12 +71,10 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = JSON.parse(e.postData.contents);
     
-    // Si la hoja está vacía, agrega los encabezados primero
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(["Fecha y Hora", "Nombre Completo", "Correo Electrónico", "Código de Ticket", "ID"]);
     }
     
-    // Agrega la fila con los datos de registro
     sheet.appendRow([
       data.registeredAt || new Date().toLocaleString(),
       data.name,
@@ -213,7 +208,6 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
                     <span>{copiedCode ? '¡Código Copiado!' : 'Copiar Script'}</span>
                   </button>
                 </div>
-
                 <ol className="text-xs text-neutral-400 space-y-2 list-decimal list-inside font-sans leading-relaxed">
                   <li>
                     Abre una hoja en <span className="text-neutral-200">Google Sheets</span>.
@@ -231,7 +225,6 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
                     Copia la URL resultante que termina en <code className="text-neutral-200">/exec</code> y pégala arriba.
                   </li>
                 </ol>
-
                 <div className="relative">
                   <pre className="p-3 bg-black/60 rounded border border-neutral-800/80 text-[11px] font-mono text-emerald-400/90 overflow-x-auto max-h-36">
                     {appsScriptSnippet}
@@ -240,7 +233,6 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
               </div>
             </>
           ) : (
-            /* Guests List Tab */
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-neutral-400 font-mono">
@@ -256,7 +248,6 @@ export const SheetsConfigModal: React.FC<SheetsConfigModalProps> = ({
                   <span>Exportar a Excel / CSV</span>
                 </button>
               </div>
-
               {guests.length === 0 ? (
                 <div className="text-center py-8 text-neutral-500 font-mono text-xs">
                   No hay personas registradas todavía. Completa el formulario para probar.

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { submitRegistration } from '../utils/googleSheets';
 import { GuestRegistration } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface RegistrationFormProps {
   onSuccess: (guest: GuestRegistration) => void;
@@ -21,52 +21,61 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   // Focus tracking for input lines
   const [focusedField, setFocusedField] = useState<'name' | 'email' | null>(null);
 
-  // Mouse coordinate tracking for dynamic lighting and tilt
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0, normX: 0, normY: 0 });
+  // Mouse coordinate and Gyroscope tracking for dynamic lighting and 3D tilt
+  const [tilt, setTilt] = useState({ rotX: 0, rotY: 0, normX: 0, normY: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Set initial center coordinates
-    setMousePos({
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      normX: 0,
-      normY: 0,
-    });
-
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
-      // Normalized between -1 and 1
       const normX = (e.clientX - innerWidth / 2) / (innerWidth / 2);
       const normY = (e.clientY - innerHeight / 2) / (innerHeight / 2);
-
-      setMousePos({
-        x: e.clientX,
-        y: e.clientY,
+      setTilt({
+        rotX: -normY * 6,
+        rotY: normX * 6,
         normX,
         normY,
       });
     };
 
-    // Mobile gyroscope / device orientation fallback
+    // Mobile gyroscope / device orientation
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma !== null && e.beta !== null) {
         const normX = Math.max(-1, Math.min(1, e.gamma / 30));
-        const normY = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
-        setMousePos((prev) => ({
-          ...prev,
+        const normY = Math.max(-1, Math.min(1, (e.beta - 42) / 30));
+        setTilt({
+          rotX: -normY * 7,
+          rotY: normX * 7,
           normX,
           normY,
-        }));
+        });
+      }
+    };
+
+    // Mobile touch drag tilt
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const { innerWidth, innerHeight } = window;
+        const normX = (touch.clientX - innerWidth / 2) / (innerWidth / 2);
+        const normY = (touch.clientY - innerHeight / 2) / (innerHeight / 2);
+        setTilt({
+          rotX: -normY * 7,
+          rotY: normX * 7,
+          normX,
+          normY,
+        });
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 
@@ -86,7 +95,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
 
     setIsSubmitting(true);
-
     try {
       const result = await submitRegistration(name, email);
       setSuccessStatus(result.message);
@@ -102,10 +110,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  // Subtle 3D tilt calculation
-  const tiltX = -mousePos.normY * 6; // max 6 deg
-  const tiltY = mousePos.normX * 6;  // max 6 deg
-
   return (
     <div
       ref={containerRef}
@@ -118,12 +122,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         transition={{ duration: 0.8, ease: 'easeOut' }}
         className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center text-center px-4"
         style={{
-          transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+          transform: `perspective(1000px) rotateX(${tilt.rotX}deg) rotateY(${tilt.rotY}deg)`,
           transformStyle: 'preserve-3d',
-          transition: 'transform 0.15s ease-out',
+          transition: 'transform 0.1s ease-out',
         }}
       >
-        {/* Header: Exactly matches user screenshot aesthetic */}
+        {/* Header */}
         <div className="mb-10 sm:mb-12 space-y-1 select-none">
           <p className="font-typewriter text-xs sm:text-[13px] tracking-[0.28em] text-neutral-300 uppercase leading-relaxed">
             ESCRIBE TU NOMBRE Y CORREO
@@ -135,7 +139,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
         {/* Minimal Form */}
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center space-y-8 sm:space-y-10">
-          
           {/* Field 1: Tu nombre */}
           <div className="w-full max-w-md relative group">
             <input
@@ -206,7 +209,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Submit Button: Exact rectangle style from screenshot */}
+          {/* Submit Button */}
           <div className="pt-2">
             <button
               id="btn-submit-minimal-registration"
@@ -234,7 +237,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
         </form>
 
-        {/* Minimal Bottom Notice: Matches screenshot */}
+        {/* Minimal Bottom Notice */}
         <div className="mt-12 sm:mt-16 space-y-1 text-neutral-600 font-typewriter text-[9px] sm:text-[10px] tracking-[0.26em] uppercase select-none">
           <p>INVITACIÓN PERSONAL E INTRANSFERIBLE</p>
           <p>SUJETA A VERIFICACIÓN EN LISTA</p>

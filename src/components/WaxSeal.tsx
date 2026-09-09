@@ -144,13 +144,13 @@ export const WaxSeal: React.FC<WaxSealProps> = ({
 
           {/* Organic irregular molten wax puddle edge */}
           <path
-            d="M 50,5
-               C 66,4 80,13 88,24
-               C 96,35 98,49 95,64
-               C 91,79 79,91 65,95
-               C 51,99 36,97 24,89
-               C 12,81 5,67 5,53
-               C 4,38 12,25 24,15
+            d="M 50,5 
+               C 66,4 80,13 88,24 
+               C 96,35 98,49 95,64 
+               C 91,79 79,91 65,95 
+               C 51,99 36,97 24,89 
+               C 12,81 5,67 5,53 
+               C 4,38 12,25 24,15 
                C 35,5 42,6 50,5 Z"
             fill={isBlack ? 'url(#blackWaxGrad)' : 'url(#crimsonWaxGrad)'}
             stroke={isBlack ? '#2d2d34' : '#550909'}
@@ -159,13 +159,13 @@ export const WaxSeal: React.FC<WaxSealProps> = ({
 
           {/* Wax lip & rim texture */}
           <path
-            d="M 50,5
-               C 66,4 80,13 88,24
-               C 96,35 98,49 95,64
-               C 91,79 79,91 65,95
-               C 51,99 36,97 24,89
-               C 12,81 5,67 5,53
-               C 4,38 12,25 24,15
+            d="M 50,5 
+               C 66,4 80,13 88,24 
+               C 96,35 98,49 95,64 
+               C 91,79 79,91 65,95 
+               C 51,99 36,97 24,89 
+               C 12,81 5,67 5,53 
+               C 4,38 12,25 24,15 
                C 35,5 42,6 50,5 Z"
             fill={isBlack ? 'url(#blackWaxRim)' : 'url(#crimsonWaxRim)'}
           />
@@ -201,7 +201,6 @@ export const WaxSeal: React.FC<WaxSealProps> = ({
               stroke={isBlack ? '#35353d' : '#bb2b2b'}
               strokeWidth="0.7"
             />
-
             {/* Letter M in heavy gothic blackletter font */}
             <text
               x="50"
@@ -223,7 +222,6 @@ export const WaxSeal: React.FC<WaxSealProps> = ({
               d="M 43,29 Q 50,26 57,29 Q 50,31 43,29 Z"
               fill={isBlack ? '#45454f' : '#dd3d3d'}
             />
-
             {/* Side leaf flourishes */}
             <path
               d="M 28,50 C 26,45 28,40 32,42 C 30,46 31,49 28,50 Z"
