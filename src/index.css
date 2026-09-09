@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-gothic {
+    font-family: 'UnifrakturMaguntia', 'Pirata One', cursive, serif;
+  }
+  .font-fraktur {
+    font-family: 'Pirata One', 'UnifrakturMaguntia', serif;
+  }
+  .font-typewriter {
+    font-family: 'Courier Prime', Courier, monospace;
+  }
+  .font-quote {
+    font-family: 'Cormorant Garamond', Garamond, Georgia, serif;
+  }
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
+
+/* Custom subtle paper texture & vintage parchment styling */
+.parchment-bg {
+  background-color: #f7f4ec;
+  background-image: radial-gradient(#e9e3d3 1px, transparent 1px), radial-gradient(#dfd7c2 1px, #f7f4ec 1px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}
+
+.matte-black-texture {
+  background-color: #121214;
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+@keyframes seal-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(185, 28, 28, 0.3)); }
+  50% { transform: scale(1.03); filter: drop-shadow(0 6px 18px rgba(220, 38, 38, 0.5)); }
+}
+
+.seal-glow {
+  animation: seal-pulse 3s infinite ease-in-out;
+}
