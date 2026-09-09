@@ -221,10 +221,11 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                     TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guest?.name ? guest.name.toUpperCase() : 'DEJOTA'}</span>
                   </div>
                   <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-4 sm:my-5" />
-                  <div className="space-y-1.5 sm:space-y-2 font-typewriter text-neutral-800 text-[11px] sm:text-xs tracking-[0.2em] font-semibold select-none">
-                    <p>DATE: OCTUBRE 2026</p>
-                    <p>PLACE: SECRET LOCATION</p>
-                    <p className="tracking-[0.16em] text-[10px]" style={{ fontSize: '10px' }}>RELEASE ALBUM PARTY MUTE DEJOTA</p>
+                  <div className="space-y-1 font-typewriter text-neutral-800 text-[10.5px] sm:text-xs tracking-[0.16em] sm:tracking-[0.18em] font-semibold select-none">
+                    <p className="font-bold text-neutral-900 tracking-[0.18em]">1 OCTUBRE 2026 · 5:30 PM</p>
+                    <p className="tracking-[0.16em]">ELEVATE SPA & WELLNESS</p>
+                    <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-700">CALLE 7# 15-40</p>
+                    <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-[#6d1010] font-bold pt-0.5">RELEASE ALBUM PARTY MUTE DEJOTA</p>
                   </div>
                 </div>
 

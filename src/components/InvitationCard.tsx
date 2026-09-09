@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { GuestRegistration } from '../types';
 import { use3DTilt } from '../hooks/use3DTilt';
-import { Calendar, Share2, Check, ArrowDownToLine, RefreshCw, Printer } from 'lucide-react';
+import { Calendar, ArrowDownToLine, RefreshCw } from 'lucide-react';
 import { toJpeg } from 'html-to-image';
 
 interface InvitationCardProps {
@@ -20,34 +20,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   enableTilt = true,
 }) => {
   const { elementRef, tilt } = use3DTilt({ maxTilt: 18, disabled: !enableTilt });
-  const [copied, setCopied] = useState(false);
   const [isExportingJpg, setIsExportingJpg] = useState(false);
   const cardSheetRef = useRef<HTMLDivElement>(null);
 
   const guestName = guest?.name ? guest.name.toUpperCase() : 'DEJOTA';
-  const ticketCode = guest?.ticketCode || 'MUTE-2026';
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'MUTE DEJOTA - Invitación Exclusiva',
-          text: `Invitación exclusiva para el lanzamiento del álbum MUTE de DEJOTA.`,
-          url: window.location.href,
-        });
-      } catch (e) {
-        // Dismissed
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   const handleSaveJpg = async () => {
     if (!cardSheetRef.current || isExportingJpg) return;
@@ -85,8 +61,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      console.warn('Error saving JPG, falling back to print dialog:', err);
-      window.print();
+      console.warn('Error saving JPG:', err);
     } finally {
       setIsExportingJpg(false);
     }
@@ -95,10 +70,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   const createGoogleCalendarLink = () => {
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nLugar: SECRET LOCATION`
+      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nFecha: 1 de Octubre del 2026 - 5:30 PM\nLugar: ELEVATE SPA & WELLNESS Calle 7# 15-40`
     );
-    const location = encodeURIComponent('Secret Location, Colombia');
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261024T230000Z/20261025T050000Z&details=${details}&location=${location}`;
+    const location = encodeURIComponent('ELEVATE SPA & WELLNESS Calle 7# 15-40');
+    // 1 Oct 2026 5:30 PM Colombia (UTC-5) is 22:30 UTC to 03:30 UTC next day
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261001T223000Z/20261002T033000Z&ctz=America/Bogota&details=${details}&location=${location}`;
   };
 
   return (
@@ -208,12 +184,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
                 {/* Event Metadata */}
                 <div
-                  className="space-y-1.5 sm:space-y-2 font-typewriter text-neutral-800 text-[11px] sm:text-xs tracking-[0.2em] font-semibold select-none"
+                  className="space-y-1 font-typewriter text-neutral-800 text-[10.5px] sm:text-xs tracking-[0.16em] sm:tracking-[0.18em] font-semibold select-none"
                   style={{ transform: 'translateZ(14px)' }}
                 >
-                  <p>DATE: OCTUBRE 2026</p>
-                  <p>PLACE: SECRET LOCATION</p>
-                  <p className="tracking-[0.16em] text-[10px]" style={{ fontSize: '10px' }}>RELEASE ALBUM PARTY MUTE DEJOTA</p>
+                  <p className="font-bold text-neutral-900 tracking-[0.18em]">1 OCTUBRE 2026 · 5:30 PM</p>
+                  <p className="tracking-[0.16em]">ELEVATE SPA & WELLNESS</p>
+                  <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-700">CALLE 7# 15-40</p>
+                  <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-[#6d1010] font-bold pt-0.5">RELEASE ALBUM PARTY MUTE DEJOTA</p>
                 </div>
               </div>
 
@@ -264,15 +241,15 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         </div>
       </div>
 
-      {/* Action Bar (Download JPG, Print, Calendar, Share, Replay) */}
+      {/* Action Bar (Download JPG, Calendar, Replay) */}
       {isExpanded && (
-        <div className="w-full mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+        <div className="w-full mt-5 flex flex-wrap items-center justify-center gap-3">
           {/* Save Invitation Sheet as JPG */}
           <button
             id="btn-save-invitation-jpg"
             onClick={handleSaveJpg}
             disabled={isExportingJpg}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#6c1010] hover:bg-[#851414] text-white text-xs font-mono tracking-wider border border-red-900/80 transition-all shadow-lg active:scale-95 cursor-pointer disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#6c1010] hover:bg-[#851414] text-white text-xs font-mono tracking-wider border border-red-900/80 transition-all shadow-lg active:scale-95 cursor-pointer disabled:opacity-60"
             title="Guardar la hoja de invitación en formato JPG"
           >
             {isExportingJpg ? (
@@ -288,30 +265,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             href={createGoogleCalendarLink()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-red-500" />
-            <span>Calendario</span>
+            <span>Agendar (Calendario)</span>
           </a>
-
-          <button
-            id="btn-print-invitation"
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
-            title="Imprimir o guardar como PDF"
-          >
-            <Printer className="w-4 h-4 text-neutral-400" />
-            <span>Imprimir</span>
-          </button>
-
-          <button
-            id="btn-share-invitation"
-            onClick={handleShare}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-neutral-400" />}
-            <span>{copied ? 'Copiado' : 'Compartir'}</span>
-          </button>
 
           {onReset && (
             <button
