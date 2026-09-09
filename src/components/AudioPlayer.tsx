@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Play, Pause, Music, Upload } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Music } from 'lucide-react';
 import { generateAtmosphericAudioUri } from '../utils/audioGenerator';
 
 interface AudioPlayerProps {
@@ -303,17 +303,6 @@ export function AudioPlayer({ defaultTrackUrl = '/mute-track.mp3' }: AudioPlayer
           ) : (
             <Volume2 className="w-3.5 h-3.5 text-neutral-300" />
           )}
-        </button>
-
-        {/* Upload custom MP3 button */}
-        <button
-          id="btn-load-custom-mp3"
-          onClick={() => fileInputRef.current?.click()}
-          className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-red-400 transition-colors cursor-pointer"
-          title="Cargar tu canción (MP3)"
-          aria-label="Cargar tu canción MP3"
-        >
-          <Upload className="w-3 h-3" />
         </button>
       </div>
 

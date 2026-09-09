@@ -146,16 +146,12 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         pixelRatio: 2,
         width: 720,
         height: 1150,
-        canvasWidth: 720,
-        canvasHeight: 1150,
         backgroundColor: '#f8f5ee',
         cacheBust: true,
         fontEmbedCSS: GOOGLE_FONTS_EMBED_CSS,
         style: {
           transform: 'none',
           margin: '0',
-          left: '0',
-          top: '0',
         },
       });
 
@@ -278,7 +274,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 {/* Subheader: You're invited */}
                 <h2
                   id="card-invited-subtitle"
-                  className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-1.5 sm:mt-2 font-normal leading-tight"
+                  className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-1.5 sm:mt-2 font-normal leading-tight whitespace-nowrap"
                   style={{ transform: 'translateZ(18px)' }}
                 >
                   You&apos;re invited
@@ -286,7 +282,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
                 {/* Recipient: TO: [GUEST NAME] */}
                 <div
-                  className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px]"
+                  className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px] whitespace-nowrap"
                   style={{ transform: 'translateZ(20px)' }}
                 >
                   TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guestName}</span>
@@ -358,11 +354,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       <div
         style={{
           position: 'fixed',
-          left: '-9999px',
-          top: 0,
+          top: '-15000px',
+          left: '0px',
           width: '720px',
           height: '1150px',
-          zIndex: -100,
+          zIndex: -9999,
           pointerEvents: 'none',
           overflow: 'hidden',
         }}
@@ -381,7 +377,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '54px 56px 44px 56px',
+            padding: '58px 56px 46px 56px',
             color: '#171717',
             overflow: 'hidden',
           }}
@@ -440,9 +436,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 color: '#6d1010',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
-                margin: 0,
+                margin: '0 0 16px 0',
                 padding: 0,
                 textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.25)',
+                whiteSpace: 'nowrap',
               }}
             >
               MUTE
@@ -456,8 +453,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 lineHeight: 1.2,
                 color: '#171717',
                 fontWeight: 400,
-                margin: '14px 0 0 0',
+                margin: '0 0 24px 0',
                 padding: 0,
+                whiteSpace: 'nowrap',
+                display: 'block',
               }}
             >
               You&apos;re invited
@@ -473,7 +472,9 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 letterSpacing: '0.24em',
                 color: '#6c1010',
                 textTransform: 'uppercase',
-                marginTop: '22px',
+                margin: '0 0 26px 0',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
               }}
             >
               TO: <span style={{ textDecoration: 'underline', textUnderlineOffset: '6px' }}>{guestName}</span>
@@ -485,7 +486,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 width: '84px',
                 height: '1px',
                 backgroundColor: 'rgba(23, 23, 23, 0.35)',
-                margin: '26px auto',
+                margin: '0 auto 26px auto',
               }}
             />
 
@@ -698,20 +699,6 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               <span>{calendarToast}</span>
             </div>
           )}
-
-          {/* Discreet web fallback link */}
-          <div className="w-full text-center mt-0.5">
-            <a
-              id="link-google-calendar-web-fallback"
-              href={createGoogleCalendarLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10.5px] font-mono text-neutral-500 hover:text-neutral-300 underline underline-offset-2 transition-colors cursor-pointer"
-              title="Abrir en pestaña de Google Calendar en el navegador"
-            >
-              ¿Prefieres abrir en Google Calendar web? Clic aquí
-            </a>
-          </div>
         </div>
       )}
     </div>

@@ -212,11 +212,11 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   >
                     MUTE
                   </h1>
-                  <h2 className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-1.5 sm:mt-2 font-normal leading-tight">
+                  <h2 className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-1.5 sm:mt-2 font-normal leading-tight whitespace-nowrap">
                     You&apos;re invited
                   </h2>
                   <div
-                    className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px]"
+                    className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px] whitespace-nowrap"
                   >
                     TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guest?.name ? guest.name.toUpperCase() : 'DEJOTA'}</span>
                   </div>

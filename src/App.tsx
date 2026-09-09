@@ -100,7 +100,15 @@ export default function App() {
               aria-hidden="true"
             />
             {/* D E J O T A Typewriter Spaced */}
-            <span className="font-typewriter text-xs sm:text-[13px] tracking-[0.32em] text-neutral-300 group-hover:text-white transition-colors uppercase font-semibold select-none">
+            <span
+              className="font-typewriter tracking-[0.32em] text-neutral-300 group-hover:text-white transition-colors uppercase select-none font-bold text-left not-italic text-[9px]"
+              style={{
+                fontSize: '9px',
+                fontWeight: 'bold',
+                fontStyle: 'normal',
+                textAlign: 'left',
+              }}
+            >
               D E J O T A
             </span>
           </button>
