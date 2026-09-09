@@ -1,6 +1,6 @@
 {
   "name": "MUTE DEJOTA - Registro e Invitación",
-  "description": "Registro oficial y revelación interactiva en 3D de la invitación exclusiva al lanzamiento del álbum MUTE de DEJOTA con movimiento giroscópico para móviles y sincronización a Google Sheets.",
+  "description": "INVITACION",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
