@@ -176,9 +176,10 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
 
               {/* Natural Parchment Sheet with Dynamic Real-time Aerodynamics */}
               <div
-                className="relative w-full rounded-sm border border-[#d6cebf] bg-[#f8f5ee] shadow-[0_35px_80px_rgba(0,0,0,0.85)] p-6 sm:p-9 flex flex-col items-center justify-between text-center overflow-hidden preserve-3d"
+                className="relative w-full rounded-sm border border-[#d6cebf] bg-[#f8f5ee] shadow-[0_35px_80px_rgba(0,0,0,0.85)] p-5 sm:p-7 flex flex-col items-center justify-between text-center overflow-hidden preserve-3d"
                 style={{
-                  aspectRatio: '1 / 1.55',
+                  aspectRatio: '1 / 1.62',
+                  minHeight: '570px',
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0,0,0,0.3)',
                   transform: `perspective(1200px) rotateX(${flightTiltX}deg) rotateY(${flightTiltY}deg) translateZ(12px)`,
                   transition: 'transform 0.05s ease-out',
@@ -204,24 +205,23 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                 />
 
                 {/* Card Content during flight */}
-                <div className="w-full flex flex-col items-center pt-2">
+                <div className="w-full flex flex-col items-center pt-1">
                   <h1
                     className="font-fraktur text-5xl sm:text-6xl text-[#6d1010] font-bold leading-none select-none"
                     style={{ letterSpacing: '-0.02em' }}
                   >
                     MUTE
                   </h1>
-                  <h2 className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-2 sm:mt-3 font-normal">
+                  <h2 className="font-fraktur text-2xl sm:text-3xl text-neutral-900 mt-1.5 sm:mt-2 font-normal leading-tight">
                     You&apos;re invited
                   </h2>
                   <div
-                    className="mt-4 sm:mt-5 text-[#6c1010] font-serif font-bold tracking-[0.26em] uppercase select-none"
-                    style={{ fontSize: '17px' }}
+                    className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px]"
                   >
                     TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guest?.name ? guest.name.toUpperCase() : 'DEJOTA'}</span>
                   </div>
-                  <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-4 sm:my-5" />
-                  <div className="space-y-1 font-typewriter text-neutral-800 text-[10.5px] sm:text-xs tracking-[0.16em] sm:tracking-[0.18em] font-semibold select-none">
+                  <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-3 sm:my-3.5" />
+                  <div className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none">
                     <p className="font-bold text-neutral-900 tracking-[0.18em]">1 OCTUBRE 2026 · 5:30 PM</p>
                     <p className="tracking-[0.16em]">ELEVATE SPA & WELLNESS</p>
                     <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-700">CALLE 7# 15-40</p>
@@ -229,7 +229,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   </div>
                 </div>
 
-                <div className="my-auto py-3 max-w-[280px] sm:max-w-xs px-2">
+                <div className="my-auto py-2 max-w-[280px] sm:max-w-xs px-2">
                   <p className="font-quote italic text-neutral-800 text-sm sm:text-base leading-relaxed tracking-wide">
                     &ldquo;No busco ser escuchado,<br />
                     busco que alguien se sienta<br />
@@ -238,7 +238,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                 </div>
 
                 <div className="w-full flex flex-col items-center pb-1">
-                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-3 shadow-inner">
+                  <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-2 shadow-inner">
                     <div className="w-full h-full rounded-full border border-neutral-900 flex items-center justify-center">
                       <span className="font-fraktur text-2xl sm:text-3xl text-neutral-950 font-bold leading-none select-none pb-0.5">
                         M
