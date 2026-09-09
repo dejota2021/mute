@@ -6,6 +6,7 @@ import { AudioPlayer } from './components/AudioPlayer';
 import { GuestRegistration, ViewMode } from './types';
 import { getCurrentGuest } from './utils/googleSheets';
 import { ArrowLeft } from 'lucide-react';
+import { gyroManager, GyroData } from './utils/gyroscope';
 
 export default function App() {
   const [currentGuest, setCurrentGuestState] = useState<GuestRegistration | null>(null);
@@ -16,29 +17,22 @@ export default function App() {
     // Initial center position
     setSpotlightPos({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
+    // 1. Subscribe to coherent global gyroscope for mobile ambient spotlight
+    const unsubscribeGyro = gyroManager.subscribe((gyro: GyroData) => {
+      if (gyro.isGyroActive) {
+        const x = window.innerWidth / 2 + gyro.normX * (window.innerWidth * 0.38);
+        const y = window.innerHeight / 2 + gyro.normY * (window.innerHeight * 0.38);
+        setSpotlightPos({ x, y });
+      }
+    });
+
+    // 2. Desktop mouse move
     const handleMouseMove = (e: MouseEvent) => {
+      if (gyroManager.getData().isGyroActive) return;
       setSpotlightPos({ x: e.clientX, y: e.clientY });
     };
 
-    // Mobile Gyroscope / Device orientation for background ambient glow
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma !== null && e.beta !== null) {
-        const x = window.innerWidth / 2 + (e.gamma / 35) * (window.innerWidth / 2.5);
-        const y = window.innerHeight / 2 + ((e.beta - 42) / 35) * (window.innerHeight / 2.5);
-        setSpotlightPos({ x, y });
-      }
-    };
-
-    // Mobile touch drag spotlight
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        setSpotlightPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('deviceorientation', handleOrientation);
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     const existing = getCurrentGuest();
     if (existing) {
@@ -57,9 +51,8 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
 
     return () => {
+      unsubscribeGyro();
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);

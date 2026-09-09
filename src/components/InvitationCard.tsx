@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { GuestRegistration } from '../types';
 import { use3DTilt } from '../hooks/use3DTilt';
-import { Calendar, Share2, Check, ArrowDownToLine, RefreshCw } from 'lucide-react';
+import { Calendar, Share2, Check, ArrowDownToLine, RefreshCw, Printer } from 'lucide-react';
+import { toJpeg } from 'html-to-image';
 
 interface InvitationCardProps {
   guest: GuestRegistration | null;
@@ -20,6 +21,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 }) => {
   const { elementRef, tilt } = use3DTilt({ maxTilt: 18, disabled: !enableTilt });
   const [copied, setCopied] = useState(false);
+  const [isExportingJpg, setIsExportingJpg] = useState(false);
+  const cardSheetRef = useRef<HTMLDivElement>(null);
 
   const guestName = guest?.name ? guest.name.toUpperCase() : 'DEJOTA';
   const ticketCode = guest?.ticketCode || 'MUTE-2026';
@@ -29,7 +32,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       try {
         await navigator.share({
           title: 'MUTE DEJOTA - Invitación Exclusiva',
-          text: `Invitación exclusiva para el lanzamiento del álbum MUTE de DEJOTA. Pase: ${ticketCode}`,
+          text: `Invitación exclusiva para el lanzamiento del álbum MUTE de DEJOTA.`,
           url: window.location.href,
         });
       } catch (e) {
@@ -46,10 +49,53 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
     window.print();
   };
 
+  const handleSaveJpg = async () => {
+    if (!cardSheetRef.current || isExportingJpg) return;
+    setIsExportingJpg(true);
+    try {
+      // Generate clean high-resolution JPG image (2.5x pixel ratio for crisp print & mobile sharing)
+      const dataUrl = await toJpeg(cardSheetRef.current, {
+        quality: 0.96,
+        pixelRatio: 2.5,
+        backgroundColor: '#f8f5ee',
+        style: {
+          transform: 'none',
+          boxShadow: 'none',
+        },
+        filter: (node) => {
+          // Omit glare overlay during JPG export so the parchment is clean and readable
+          if (node instanceof HTMLElement && node.classList.contains('mix-blend-overlay')) {
+            return false;
+          }
+          return true;
+        },
+      });
+
+      const sanitizedName = (guestName || 'dejota')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '-');
+
+      const filename = `invitacion-mute-${sanitizedName || 'dejota'}.jpg`;
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.warn('Error saving JPG, falling back to print dialog:', err);
+      window.print();
+    } finally {
+      setIsExportingJpg(false);
+    }
+  };
+
   const createGoogleCalendarLink = () => {
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nCódigo de Pase: ${ticketCode}\nLugar: SECRET LOCATION`
+      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nLugar: SECRET LOCATION`
     );
     const location = encodeURIComponent('Secret Location, Colombia');
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261024T230000Z/20261025T050000Z&details=${details}&location=${location}`;
@@ -70,8 +116,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             transform: enableTilt
               ? `perspective(1200px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) translate3d(${tilt.translateX}px, ${tilt.translateY}px, ${tilt.isInteracting || tilt.isGyroActive ? tilt.translateZ : 0}px)`
               : 'none',
-            transition: tilt.isInteracting
-              ? 'transform 0.05s ease-out'
+            transition: (tilt.isInteracting || tilt.isGyroActive)
+              ? 'none'
               : 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
@@ -83,12 +129,14 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             style={{
               transform: `translate3d(${-tilt.rotateY * 2.2 - tilt.translateX}px, ${26 + tilt.rotateX * 1.5 - tilt.translateY}px, -40px) scale(${tilt.isInteracting || tilt.isGyroActive ? 1.05 : 0.95})`,
               opacity: tilt.isInteracting || tilt.isGyroActive ? 0.85 : 0.45,
-              transition: tilt.isInteracting ? 'transform 0.05s ease-out, opacity 0.15s' : 'transform 0.4s ease-out, opacity 0.3s',
+              transition: (tilt.isInteracting || tilt.isGyroActive) ? 'none' : 'transform 0.4s ease-out, opacity 0.3s',
             }}
           />
 
           {/* Physical Parchment Invitation Card */}
           <div
+            ref={cardSheetRef}
+            id="physical-parchment-sheet"
             className="w-full relative rounded-sm border border-[#d6cebf] bg-[#f8f5ee] text-neutral-900 overflow-hidden shadow-2xl preserve-3d"
             style={{
               boxShadow: '0 20px 45px rgba(0,0,0,0.5), 0 0 1px rgba(0,0,0,0.3)',
@@ -205,14 +253,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 {/* Footer Notice */}
                 <p
                   id="card-footer-notice"
-                  className="font-typewriter text-[9px] sm:text-[10px] tracking-[0.24em] text-neutral-700 font-semibold uppercase select-none"
+                  className="font-typewriter text-[8px] tracking-[0.24em] text-neutral-700 font-semibold uppercase select-none"
+                  style={{ fontSize: '8px' }}
                 >
                   INVITACIÓN NO TRANSFERIBLE · SUJETA A LISTA
-                </p>
-
-                {/* Ticket Code Reference */}
-                <p className="font-typewriter text-[8px] text-neutral-500 tracking-widest mt-1">
-                  PASE #{ticketCode}
                 </p>
               </div>
             </div>
@@ -220,36 +264,53 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
         </div>
       </div>
 
-      {/* Action Bar (Download, Calendar, Share, Replay) */}
+      {/* Action Bar (Download JPG, Print, Calendar, Share, Replay) */}
       {isExpanded && (
-        <div className="w-full mt-5 flex flex-wrap items-center justify-center gap-3">
+        <div className="w-full mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+          {/* Save Invitation Sheet as JPG */}
+          <button
+            id="btn-save-invitation-jpg"
+            onClick={handleSaveJpg}
+            disabled={isExportingJpg}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#6c1010] hover:bg-[#851414] text-white text-xs font-mono tracking-wider border border-red-900/80 transition-all shadow-lg active:scale-95 cursor-pointer disabled:opacity-60"
+            title="Guardar la hoja de invitación en formato JPG"
+          >
+            {isExportingJpg ? (
+              <RefreshCw className="w-4 h-4 animate-spin text-white" />
+            ) : (
+              <ArrowDownToLine className="w-4 h-4 text-white" />
+            )}
+            <span>{isExportingJpg ? 'Guardando JPG...' : 'Guardar en JPG'}</span>
+          </button>
+
           <a
             id="btn-add-calendar"
             href={createGoogleCalendarLink()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-red-500" />
-            <span>Añadir a Calendario</span>
+            <span>Calendario</span>
           </a>
 
           <button
             id="btn-print-invitation"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
+            title="Imprimir o guardar como PDF"
           >
-            <ArrowDownToLine className="w-4 h-4 text-neutral-400" />
-            <span>Guardar / Imprimir</span>
+            <Printer className="w-4 h-4 text-neutral-400" />
+            <span>Imprimir</span>
           </button>
 
           <button
             id="btn-share-invitation"
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-mono tracking-wider border border-neutral-800 transition-all shadow-md active:scale-95 cursor-pointer"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-neutral-400" />}
-            <span>{copied ? '¡Enlace Copiado!' : 'Compartir'}</span>
+            <span>{copied ? 'Copiado' : 'Compartir'}</span>
           </button>
 
           {onReset && (

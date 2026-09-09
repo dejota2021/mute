@@ -74,7 +74,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
   const isRevealed = stage === 'revealed';
 
   // Dynamic tilt for paper during flight
-  const flightTiltX = -envelopeTilt.normY * 16;
+  const flightTiltX = envelopeTilt.normY * 16;
   const flightTiltY = envelopeTilt.normX * 18;
 
   return (
@@ -244,11 +244,11 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                       </span>
                     </div>
                   </div>
-                  <p className="font-typewriter text-[9px] sm:text-[10px] tracking-[0.24em] text-neutral-700 font-semibold uppercase select-none">
+                  <p
+                    className="font-typewriter text-[8px] tracking-[0.24em] text-neutral-700 font-semibold uppercase select-none"
+                    style={{ fontSize: '8px' }}
+                  >
                     INVITACIÓN NO TRANSFERIBLE · SUJETA A LISTA
-                  </p>
-                  <p className="font-typewriter text-[8px] text-neutral-500 tracking-widest mt-1">
-                    PASE #{guest?.ticketCode || 'MUTE-2026-001'}
                   </p>
                 </div>
               </div>
@@ -286,8 +286,8 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   transform: isSealed
                     ? `perspective(1200px) rotateX(${envelopeTilt.rotateX}deg) rotateY(${envelopeTilt.rotateY}deg) translate3d(${envelopeTilt.translateX}px, ${envelopeTilt.translateY}px, ${envelopeTilt.isInteracting || envelopeTilt.isGyroActive ? envelopeTilt.translateZ : 0}px)`
                     : 'none',
-                  transition: envelopeTilt.isInteracting
-                    ? 'transform 0.05s ease-out'
+                  transition: (envelopeTilt.isInteracting || envelopeTilt.isGyroActive)
+                    ? 'none'
                     : 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                   transformStyle: 'preserve-3d',
                   willChange: 'transform',
@@ -299,7 +299,7 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   style={{
                     transform: `translate3d(${-envelopeTilt.rotateY * 2 - envelopeTilt.translateX}px, ${envelopeTilt.rotateX * 1.5 - envelopeTilt.translateY}px, -30px) scale(${envelopeTilt.isInteracting || envelopeTilt.isGyroActive ? 1.05 : 0.95})`,
                     opacity: envelopeTilt.isInteracting || envelopeTilt.isGyroActive ? 0.9 : 0.6,
-                    transition: envelopeTilt.isInteracting ? 'transform 0.05s ease-out, opacity 0.2s' : 'transform 0.4s ease-out, opacity 0.3s',
+                    transition: (envelopeTilt.isInteracting || envelopeTilt.isGyroActive) ? 'none' : 'transform 0.4s ease-out, opacity 0.3s',
                   }}
                 />
 

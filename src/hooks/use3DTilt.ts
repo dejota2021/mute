@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { gyroManager, GyroData } from '../utils/gyroscope';
 
 export interface TiltState {
   rotateX: number;
@@ -17,7 +18,7 @@ export interface TiltState {
 
 interface Use3DTiltOptions {
   maxTilt?: number; // max tilt in degrees, e.g. 18
-  maxTranslate?: number; // max lateral translation in px, e.g. 15
+  maxTranslate?: number; // max lateral translation in px, e.g. 14
   perspective?: number;
   disabled?: boolean;
 }
@@ -43,12 +44,41 @@ export function use3DTilt({
   });
 
   const elementRef = useRef<HTMLDivElement>(null);
-  const gyroActiveRef = useRef(false);
-  const isTouchInteractingRef = useRef(false);
+  const isTouchOrMouseInteracting = useRef(false);
   const targetTiltRef = useRef({ rotX: 0, rotY: 0, transX: 0, transY: 0, glareX: 50, glareY: 50 });
   const animFrameRef = useRef<number | null>(null);
 
-  // Smooth lerp loop for silky gyroscope and touch dynamics
+  // Subscribe to the global auto-calibrating gyroscope
+  useEffect(() => {
+    if (disabled) return;
+
+    const unsubscribe = gyroManager.subscribe((gyro: GyroData) => {
+      // If user is currently dragging with touch or moving mouse, let touch take precedence
+      if (isTouchOrMouseInteracting.current) return;
+
+      if (gyro.isGyroActive) {
+        // Coherent scale to component's configured maxTilt & maxTranslate
+        const scale = maxTilt / 18;
+        const rotX = gyro.tiltX * scale;
+        const rotY = gyro.tiltY * scale;
+        const transX = gyro.normX * maxTranslate;
+        const transY = gyro.normY * (maxTranslate * 0.85);
+
+        targetTiltRef.current = {
+          rotX,
+          rotY,
+          transX,
+          transY,
+          glareX: gyro.glareX,
+          glareY: gyro.glareY,
+        };
+      }
+    });
+
+    return unsubscribe;
+  }, [disabled, maxTilt, maxTranslate]);
+
+  // Silky smooth lerp loop for all motion
   useEffect(() => {
     let currentRotX = 0;
     let currentRotY = 0;
@@ -62,7 +92,7 @@ export function use3DTilt({
     const tick = () => {
       if (!disabled) {
         const target = targetTiltRef.current;
-        const speed = isTouchInteractingRef.current ? 0.35 : 0.15;
+        const speed = isTouchOrMouseInteracting.current ? 0.35 : 0.18;
 
         currentRotX = lerp(currentRotX, target.rotX, speed);
         currentRotY = lerp(currentRotY, target.rotY, speed);
@@ -71,14 +101,15 @@ export function use3DTilt({
         currentGlareX = lerp(currentGlareX, target.glareX, speed);
         currentGlareY = lerp(currentGlareY, target.glareY, speed);
 
-        // Only update react state when moving or active to avoid unneeded renders
-        setTilt((prev) => {
-          const changed =
-            Math.abs(prev.rotateX - currentRotX) > 0.05 ||
-            Math.abs(prev.rotateY - currentRotY) > 0.05 ||
-            prev.isGyroActive !== gyroActiveRef.current;
+        const gyroState = gyroManager.getData();
 
-          if (!changed && !prev.isInteracting && !gyroActiveRef.current) {
+        setTilt((prev) => {
+          const isActivelyMoving =
+            Math.abs(prev.rotateX - currentRotX) > 0.04 ||
+            Math.abs(prev.rotateY - currentRotY) > 0.04 ||
+            prev.isGyroActive !== gyroState.isGyroActive;
+
+          if (!isActivelyMoving && !prev.isInteracting && !gyroState.isGyroActive) {
             return prev;
           }
 
@@ -88,12 +119,13 @@ export function use3DTilt({
             rotateY: Math.round(currentRotY * 100) / 100,
             translateX: Math.round(currentTransX * 100) / 100,
             translateY: Math.round(currentTransY * 100) / 100,
-            translateZ: prev.isInteracting || gyroActiveRef.current ? 22 : 0,
+            translateZ: prev.isInteracting || gyroState.isGyroActive ? 22 : 0,
             glareX: Math.round(currentGlareX * 10) / 10,
             glareY: Math.round(currentGlareY * 10) / 10,
-            normX: currentRotY / maxTilt,
-            normY: -currentRotX / maxTilt,
-            isGyroActive: gyroActiveRef.current,
+            normX: currentRotY / (maxTilt || 1),
+            normY: currentRotX / (maxTilt || 1),
+            isGyroActive: gyroState.isGyroActive,
+            needsPermission: gyroState.needsPermission,
           };
         });
       }
@@ -108,35 +140,19 @@ export function use3DTilt({
 
   // Request gyroscope permissions for iOS 13+ devices
   const requestGyroPermission = useCallback(async () => {
-    if (typeof (DeviceOrientationEvent as any)?.requestPermission === 'function') {
-      try {
-        const state = await (DeviceOrientationEvent as any).requestPermission();
-        if (state === 'granted') {
-          gyroActiveRef.current = true;
-          setTilt((p) => ({ ...p, isGyroActive: true, needsPermission: false }));
-          return true;
-        }
-      } catch (err) {
-        console.warn('Could not request device orientation permission:', err);
-      }
-      return false;
-    }
-    return true;
-  }, []);
-
-  // Check whether iOS requires permission
-  useEffect(() => {
-    if (typeof (DeviceOrientationEvent as any)?.requestPermission === 'function') {
-      setTilt((p) => ({ ...p, needsPermission: true }));
-    }
+    return gyroManager.requestPermission();
   }, []);
 
   // Mouse Move Handler (Desktop)
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (disabled || !elementRef.current || isTouchInteractingRef.current) return;
+      if (disabled || !elementRef.current) return;
+      const gyroState = gyroManager.getData();
+      // If mobile gyroscope is actively moving, ignore synthetic mouse events
+      if (gyroState.isGyroActive) return;
+
       const rect = elementRef.current.getBoundingClientRect();
-      const padding = 200; // Magnetic zone around element
+      const padding = 180; // Magnetic zone around element
 
       const isInside =
         e.clientX >= rect.left - padding &&
@@ -145,20 +161,20 @@ export function use3DTilt({
         e.clientY <= rect.bottom + padding;
 
       if (!isInside) {
-        if (!gyroActiveRef.current) {
-          targetTiltRef.current = {
-            rotX: 0,
-            rotY: 0,
-            transX: 0,
-            transY: 0,
-            glareX: 50,
-            glareY: 50,
-          };
-          setTilt((prev) => ({ ...prev, isInteracting: false }));
-        }
+        targetTiltRef.current = {
+          rotX: 0,
+          rotY: 0,
+          transX: 0,
+          transY: 0,
+          glareX: 50,
+          glareY: 50,
+        };
+        isTouchOrMouseInteracting.current = false;
+        setTilt((prev) => ({ ...prev, isInteracting: false }));
         return;
       }
 
+      isTouchOrMouseInteracting.current = true;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       const deltaX = (e.clientX - centerX) / (rect.width / 2);
@@ -172,8 +188,8 @@ export function use3DTilt({
       const transX = clampedX * maxTranslate;
       const transY = clampedY * (maxTranslate * 0.85);
 
-      const glareX = Math.max(0, Math.min(100, (clampedX + 1) * 50));
-      const glareY = Math.max(0, Math.min(100, (clampedY + 1) * 50));
+      const glareX = Math.max(0, Math.min(100, 50 - clampedX * 42));
+      const glareY = Math.max(0, Math.min(100, 50 - clampedY * 42));
 
       targetTiltRef.current = { rotX, rotY, transX, transY, glareX, glareY };
       setTilt((prev) => ({ ...prev, isInteracting: true }));
@@ -182,62 +198,37 @@ export function use3DTilt({
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (disabled || gyroActiveRef.current || isTouchInteractingRef.current) return;
-    targetTiltRef.current = {
-      rotX: 0,
-      rotY: 0,
-      transX: 0,
-      transY: 0,
-      glareX: 50,
-      glareY: 50,
-    };
-    setTilt((prev) => ({ ...prev, isInteracting: false }));
+    isTouchOrMouseInteracting.current = false;
+    if (disabled) return;
+    const gyroState = gyroManager.getData();
+    if (!gyroState.isGyroActive) {
+      targetTiltRef.current = {
+        rotX: 0,
+        rotY: 0,
+        transX: 0,
+        transY: 0,
+        glareX: 50,
+        glareY: 50,
+      };
+      setTilt((prev) => ({ ...prev, isInteracting: false }));
+    }
   }, [disabled]);
 
-  // Mobile Device Orientation (Gyroscope & Accelerometer)
+  // Touch drag support
   useEffect(() => {
     if (disabled) return;
 
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      // If user is actively touching/dragging, let touch take temporary precedence
-      if (isTouchInteractingRef.current) return;
-
-      if (e.gamma !== null && e.beta !== null) {
-        gyroActiveRef.current = true;
-
-        // gamma: left-to-right tilt in degrees [-90, 90]
-        // beta: front-to-back tilt in degrees [-180, 180]
-        // Standard comfortable holding angle for smartphone is ~42-45°
-        const gamma = Math.max(-45, Math.min(45, e.gamma));
-        const beta = Math.max(-45, Math.min(45, e.beta - 42));
-
-        const rotY = (gamma / 45) * maxTilt;
-        const rotX = (-beta / 45) * maxTilt;
-        const transX = (gamma / 45) * maxTranslate;
-        const transY = (beta / 45) * (maxTranslate * 0.85);
-
-        const glareX = 50 + (gamma / 45) * 45;
-        const glareY = 50 + (beta / 45) * 45;
-
-        targetTiltRef.current = { rotX, rotY, transX, transY, glareX, glareY };
-      }
-    };
-
-    // Touch support for mobile dragging & tilting
     const handleTouchStart = (e: TouchEvent) => {
-      // Auto-trigger permission request on first touch if required
-      if (typeof (DeviceOrientationEvent as any)?.requestPermission === 'function' && !gyroActiveRef.current) {
-        requestGyroPermission();
-      }
+      gyroManager.requestPermission();
       if (e.touches.length > 0 && elementRef.current) {
-        isTouchInteractingRef.current = true;
+        isTouchOrMouseInteracting.current = true;
         setTilt((p) => ({ ...p, isInteracting: true }));
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0 && elementRef.current) {
-        isTouchInteractingRef.current = true;
+        isTouchOrMouseInteracting.current = true;
         const touch = e.touches[0];
         const rect = elementRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -253,8 +244,8 @@ export function use3DTilt({
         const transX = clampedX * maxTranslate;
         const transY = clampedY * (maxTranslate * 0.85);
 
-        const glareX = 50 + clampedX * 40;
-        const glareY = 50 + clampedY * 40;
+        const glareX = Math.max(0, Math.min(100, 50 - clampedX * 40));
+        const glareY = Math.max(0, Math.min(100, 50 - clampedY * 40));
 
         targetTiltRef.current = { rotX, rotY, transX, transY, glareX, glareY };
         setTilt((p) => ({ ...p, isInteracting: true }));
@@ -262,8 +253,9 @@ export function use3DTilt({
     };
 
     const handleTouchEnd = () => {
-      isTouchInteractingRef.current = false;
-      if (!gyroActiveRef.current) {
+      isTouchOrMouseInteracting.current = false;
+      const gyroState = gyroManager.getData();
+      if (!gyroState.isGyroActive) {
         targetTiltRef.current = {
           rotX: 0,
           rotY: 0,
@@ -276,7 +268,6 @@ export function use3DTilt({
       }
     };
 
-    window.addEventListener('deviceorientation', handleOrientation);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -285,7 +276,6 @@ export function use3DTilt({
     window.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('touchstart', handleTouchStart);
@@ -293,7 +283,7 @@ export function use3DTilt({
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [disabled, handleMouseMove, handleMouseLeave, maxTilt, maxTranslate, requestGyroPermission]);
+  }, [disabled, handleMouseMove, handleMouseLeave, maxTilt, maxTranslate]);
 
   return { elementRef, tilt, requestGyroPermission };
 }

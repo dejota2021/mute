@@ -3,6 +3,7 @@ import { submitRegistration } from '../utils/googleSheets';
 import { GuestRegistration } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check } from 'lucide-react';
+import { gyroManager, GyroData } from '../utils/gyroscope';
 
 interface RegistrationFormProps {
   onSuccess: (guest: GuestRegistration) => void;
@@ -26,7 +27,21 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 1. Subscribe to coherent global gyroscope (active immediately on mobile)
+    const unsubscribeGyro = gyroManager.subscribe((gyro: GyroData) => {
+      if (gyro.isGyroActive) {
+        setTilt({
+          rotX: gyro.tiltX * 0.45,
+          rotY: gyro.tiltY * 0.45,
+          normX: gyro.normX,
+          normY: gyro.normY,
+        });
+      }
+    });
+
+    // 2. Desktop mouse move tracking
     const handleMouseMove = (e: MouseEvent) => {
+      if (gyroManager.getData().isGyroActive) return;
       const { innerWidth, innerHeight } = window;
       const normX = (e.clientX - innerWidth / 2) / (innerWidth / 2);
       const normY = (e.clientY - innerHeight / 2) / (innerHeight / 2);
@@ -38,44 +53,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       });
     };
 
-    // Mobile gyroscope / device orientation
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma !== null && e.beta !== null) {
-        const normX = Math.max(-1, Math.min(1, e.gamma / 30));
-        const normY = Math.max(-1, Math.min(1, (e.beta - 42) / 30));
-        setTilt({
-          rotX: -normY * 7,
-          rotY: normX * 7,
-          normX,
-          normY,
-        });
-      }
-    };
-
-    // Mobile touch drag tilt
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        const { innerWidth, innerHeight } = window;
-        const normX = (touch.clientX - innerWidth / 2) / (innerWidth / 2);
-        const normY = (touch.clientY - innerHeight / 2) / (innerHeight / 2);
-        setTilt({
-          rotX: -normY * 7,
-          rotY: normX * 7,
-          normX,
-          normY,
-        });
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('deviceorientation', handleOrientation);
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
+      unsubscribeGyro();
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 
