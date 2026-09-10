@@ -233,11 +233,12 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1 max-w-[280px] sm:max-w-xs px-2">
-                  <p className="font-quote italic text-neutral-800 text-sm sm:text-base leading-relaxed tracking-wide">
-                    &ldquo;No busco ser escuchado,<br />
-                    busco que alguien se sienta<br />
-                    acompañado en el silencio.&rdquo;
+                <div className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1.5 max-w-[290px] sm:max-w-xs px-2 text-center">
+                  <p className="font-cinzel text-xs sm:text-[13px] tracking-[0.18em] sm:tracking-[0.22em] text-[#6c1010] font-bold select-none text-center leading-relaxed">
+                    - Release album party &ldquo;MUTE&rdquo; DEJOTA -
+                  </p>
+                  <p className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-2 sm:mt-2.5 select-none">
+                    &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
                   </p>
                 </div>
 

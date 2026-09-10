@@ -41,7 +41,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       'DTSTART:20261001T230000Z',
       'DTEND:20261002T050000Z',
       'SUMMARY:MUTE DEJOTA - Release Album Party',
-      `DESCRIPTION:Lanzamiento oficial del álbum "MUTE" de DEJOTA.\\n\\n"No busco ser escuchado\\, busco que alguien se sienta acompañado en el silencio."\\n\\nInvitado: ${name}\\nDate: 1ro de octubre\\nHour: 6:00pm\\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\\nDress code: Oscuro`,
+      `DESCRIPTION:Lanzamiento oficial del álbum "MUTE" de DEJOTA.\\n\\n- Release album party “MUTE” DEJOTA -\\n“Una colección de sonidos nacidos en el silencio”\\n\\nInvitado: ${name}\\nDate: 1ro de octubre\\nHour: 6:00pm\\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\\nDress code: Oscuro`,
       'LOCATION:Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia',
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
@@ -84,7 +84,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
+      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n- Release album party “MUTE” DEJOTA -\n“Una colección de sonidos nacidos en el silencio”\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
     );
     const location = encodeURIComponent('Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia');
 
@@ -178,7 +178,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   const createGoogleCalendarLink = () => {
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
+      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n- Release album party “MUTE” DEJOTA -\n“Una colección de sonidos nacidos en el silencio”\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
     );
     const location = encodeURIComponent('Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia');
     // 1 Oct 2026 6:00 PM Colombia (UTC-5) is 23:00 UTC to 05:00 UTC next day
@@ -307,19 +307,23 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 </div>
               </div>
 
-              {/* Middle Section: Poetic Manifesto Quote */}
+              {/* Middle Section: Release Album Party Announcement & Subtitle */}
               <div
-                className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1 max-w-[280px] sm:max-w-xs px-2 preserve-3d"
+                className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1.5 max-w-[290px] sm:max-w-xs px-2 text-center preserve-3d"
                 style={{ transform: 'translateZ(16px)' }}
               >
-                <blockquote
-                  id="card-manifesto-quote"
-                  className="font-quote italic text-neutral-800 text-sm sm:text-base leading-relaxed tracking-wide"
+                <p
+                  id="card-release-album-party-title"
+                  className="font-cinzel text-xs sm:text-[13px] tracking-[0.18em] sm:tracking-[0.22em] text-[#6c1010] font-bold select-none text-center leading-relaxed"
                 >
-                  &ldquo;No busco ser escuchado,<br />
-                  busco que alguien se sienta<br />
-                  acompañado en el silencio.&rdquo;
-                </blockquote>
+                  - Release album party &ldquo;MUTE&rdquo; DEJOTA -
+                </p>
+                <p
+                  id="card-collection-quote"
+                  className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-2 sm:mt-2.5 select-none"
+                >
+                  &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
+                </p>
               </div>
 
               {/* Bottom Section */}
@@ -554,33 +558,43 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             </div>
           </div>
 
-          {/* MIDDLE SECTION: Poetic Manifesto Quote */}
+          {/* MIDDLE SECTION: Release Album Party Announcement & Subtitle */}
           <div
             style={{
               position: 'relative',
               zIndex: 2,
-              maxWidth: '460px',
+              maxWidth: '520px',
               textAlign: 'center',
-              margin: '22px auto 26px auto',
+              margin: '26px auto 24px auto',
               padding: '0 16px',
             }}
           >
-            <blockquote
+            <p
               style={{
-                fontFamily: "'Cormorant Garamond', Garamond, Georgia, serif",
-                fontSize: '23px',
-                fontStyle: 'italic',
-                lineHeight: 1.7,
-                letterSpacing: '0.03em',
-                color: '#262626',
-                margin: 0,
-                padding: 0,
+                fontFamily: "'Cinzel', Georgia, serif",
+                fontSize: '17px',
+                fontWeight: 700,
+                letterSpacing: '0.22em',
+                color: '#6c1010',
+                margin: '0 0 8px 0',
+                lineHeight: 1.4,
               }}
             >
-              &ldquo;No busco ser escuchado,<br />
-              busco que alguien se sienta<br />
-              acompañado en el silencio.&rdquo;
-            </blockquote>
+              - Release album party &ldquo;MUTE&rdquo; DEJOTA -
+            </p>
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', Garamond, Georgia, serif",
+                fontSize: '20px',
+                fontStyle: 'italic',
+                letterSpacing: '0.04em',
+                color: '#262626',
+                margin: 0,
+                lineHeight: 1.5,
+              }}
+            >
+              &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
+            </p>
           </div>
 
           {/* BOTTOM SECTION: Gothic M Emblem & Notice */}
