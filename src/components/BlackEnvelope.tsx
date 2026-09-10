@@ -216,34 +216,43 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                     You&apos;re invited
                   </h2>
                   <div
-                    className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px] whitespace-nowrap"
+                    className="mt-2.5 sm:mt-3 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[14px] sm:text-[15px] whitespace-nowrap"
                   >
                     TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guest?.name ? guest.name.toUpperCase() : 'DEJOTA'}</span>
                   </div>
-                  <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-3 sm:my-3.5" />
-                  <div className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center">
-                    <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
-                    <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
-                    <p className="tracking-[0.14em] text-[9px] sm:text-[9.5px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
-                      Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
-                    </p>
-                    <p className="text-[9px] sm:text-[9.5px] tracking-[0.18em] text-neutral-700 font-medium pt-1">
-                      Dress code: Oscuro
-                    </p>
-                  </div>
                 </div>
 
-                <div className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1.5 max-w-[290px] sm:max-w-xs px-2 text-center">
+                {/* Delicate hairline divider */}
+                <div className="w-12 sm:w-16 h-[1px] bg-neutral-400/80 my-0.5 sm:my-1" />
+
+                {/* Section 2: Occasion - Release Album Party Announcement & Subtitle */}
+                <div className="w-full max-w-[290px] sm:max-w-xs px-2 text-center">
                   <p className="font-cinzel text-xs sm:text-[13px] tracking-[0.18em] sm:tracking-[0.22em] text-[#6c1010] font-bold select-none text-center leading-relaxed">
                     - Release album party &ldquo;MUTE&rdquo; DEJOTA -
                   </p>
-                  <p className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-2 sm:mt-2.5 select-none">
+                  <p className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-1.5 select-none">
                     &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
                   </p>
                 </div>
 
-                <div className="w-full flex flex-col items-center pb-1">
-                  <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-2 shadow-inner">
+                {/* Delicate hairline divider */}
+                <div className="w-12 sm:w-16 h-[1px] bg-neutral-400/80 my-0.5 sm:my-1" />
+
+                {/* Section 3: Event Logistics */}
+                <div className="space-y-1 sm:space-y-1.5 font-typewriter text-neutral-800 text-[10.5px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center">
+                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
+                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
+                  <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
+                    Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
+                  </p>
+                  <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-800 font-bold pt-0.5">
+                    Dress code: Oscuro
+                  </p>
+                </div>
+
+                {/* Section 4: Gothic Emblem & Notice */}
+                <div className="w-full flex flex-col items-center pt-1 pb-1">
+                  <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-2 shadow-inner">
                     <div className="w-full h-full rounded-full border border-neutral-900 flex items-center justify-center">
                       <span className="font-fraktur text-2xl sm:text-3xl text-neutral-950 font-bold leading-none select-none pb-0.5">
                         M

@@ -252,7 +252,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
             {/* Card Content Container with 3D Parallax layers */}
             <div className="relative z-10 h-full flex flex-col justify-between items-center text-center p-5 sm:p-7 preserve-3d">
-              {/* Top Section */}
+              {/* Section 1: Header & Recipient */}
               <div
                 className="w-full flex flex-col items-center pt-1 preserve-3d"
                 style={{ transform: 'translateZ(20px)' }}
@@ -282,35 +282,20 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
                 {/* Recipient: TO: [GUEST NAME] */}
                 <div
-                  className="mt-3 sm:mt-3.5 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[15px] sm:text-[16px] whitespace-nowrap"
+                  className="mt-2.5 sm:mt-3 text-[#6c1010] font-cinzel font-bold tracking-[0.24em] uppercase select-none text-[14px] sm:text-[15px] whitespace-nowrap"
                   style={{ transform: 'translateZ(20px)' }}
                 >
                   TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guestName}</span>
                 </div>
-
-                {/* Delicate hairline divider */}
-                <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-3 sm:my-3.5" />
-
-                {/* Event Metadata */}
-                <div
-                  className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center"
-                  style={{ transform: 'translateZ(14px)' }}
-                >
-                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
-                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
-                  <p className="tracking-[0.14em] text-[9px] sm:text-[9.5px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
-                    Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
-                  </p>
-                  <p className="text-[9px] sm:text-[9.5px] tracking-[0.18em] text-neutral-700 font-medium pt-1">
-                    Dress code: Oscuro
-                  </p>
-                </div>
               </div>
 
-              {/* Middle Section: Release Album Party Announcement & Subtitle */}
+              {/* Delicate hairline divider */}
+              <div className="w-12 sm:w-16 h-[1px] bg-neutral-400/80 my-0.5 sm:my-1" />
+
+              {/* Section 2: Occasion - Release Album Party Announcement & Subtitle */}
               <div
-                className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1.5 max-w-[290px] sm:max-w-xs px-2 text-center preserve-3d"
-                style={{ transform: 'translateZ(16px)' }}
+                className="w-full max-w-[290px] sm:max-w-xs px-2 text-center preserve-3d"
+                style={{ transform: 'translateZ(18px)' }}
               >
                 <p
                   id="card-release-album-party-title"
@@ -320,21 +305,39 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 </p>
                 <p
                   id="card-collection-quote"
-                  className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-2 sm:mt-2.5 select-none"
+                  className="font-quote italic text-neutral-800 text-[13px] sm:text-base leading-snug tracking-wide mt-1.5 select-none"
                 >
                   &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
                 </p>
               </div>
 
-              {/* Bottom Section */}
+              {/* Delicate hairline divider */}
+              <div className="w-12 sm:w-16 h-[1px] bg-neutral-400/80 my-0.5 sm:my-1" />
+
+              {/* Section 3: Event Logistics */}
               <div
-                className="w-full flex flex-col items-center pb-1 preserve-3d"
+                className="space-y-1 sm:space-y-1.5 font-typewriter text-neutral-800 text-[10.5px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center"
+                style={{ transform: 'translateZ(14px)' }}
+              >
+                <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
+                <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
+                <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
+                  Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
+                </p>
+                <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-800 font-bold pt-0.5">
+                  Dress code: Oscuro
+                </p>
+              </div>
+
+              {/* Section 4: Gothic Emblem & Notice */}
+              <div
+                className="w-full flex flex-col items-center pt-1 pb-1 preserve-3d"
                 style={{ transform: 'translateZ(20px)' }}
               >
                 {/* The Emblem: Double circle with Gothic 'M' */}
                 <div
                   id="card-gothic-emblem"
-                  className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-2 shadow-inner"
+                  className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-[2px] border-neutral-900 p-1 mb-2 shadow-inner"
                   style={{ transform: 'translateZ(22px)' }}
                 >
                   <div className="w-full h-full rounded-full border border-neutral-900 flex items-center justify-center">
@@ -480,7 +483,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 letterSpacing: '0.24em',
                 color: '#6c1010',
                 textTransform: 'uppercase',
-                margin: '0 0 26px 0',
+                margin: '0 0 18px 0',
                 whiteSpace: 'nowrap',
                 display: 'inline-block',
               }}
@@ -494,78 +497,19 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 width: '84px',
                 height: '1px',
                 backgroundColor: 'rgba(23, 23, 23, 0.35)',
-                margin: '0 auto 26px auto',
+                margin: '0 auto',
               }}
             />
-
-            {/* Event Details */}
-            <div
-              style={{
-                fontFamily: "'Courier Prime', Courier, monospace",
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '6px',
-                textAlign: 'center',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  letterSpacing: '0.18em',
-                  color: '#171717',
-                  lineHeight: 1.3,
-                }}
-              >
-                Date: 1ro de octubre
-              </div>
-              <div
-                style={{
-                  fontSize: '14.5px',
-                  fontWeight: 700,
-                  letterSpacing: '0.18em',
-                  color: '#171717',
-                  lineHeight: 1.3,
-                }}
-              >
-                Hour: 6:00pm
-              </div>
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  letterSpacing: '0.15em',
-                  color: '#333333',
-                  lineHeight: 1.35,
-                  maxWidth: '440px',
-                }}
-              >
-                Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
-              </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  letterSpacing: '0.18em',
-                  color: '#383838',
-                  marginTop: '6px',
-                  lineHeight: 1.3,
-                }}
-              >
-                Dress code: Oscuro
-              </div>
-            </div>
           </div>
 
-          {/* MIDDLE SECTION: Release Album Party Announcement & Subtitle */}
+          {/* SECTION 2: Release Album Party Announcement & Subtitle */}
           <div
             style={{
               position: 'relative',
               zIndex: 2,
-              maxWidth: '520px',
+              maxWidth: '540px',
               textAlign: 'center',
-              margin: '26px auto 24px auto',
+              margin: '0 auto',
               padding: '0 16px',
             }}
           >
@@ -595,6 +539,79 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
             >
               &ldquo;Una colección de sonidos nacidos en el silencio&rdquo;
             </p>
+          </div>
+
+          {/* Hairline Divider */}
+          <div
+            style={{
+              width: '84px',
+              height: '1px',
+              backgroundColor: 'rgba(23, 23, 23, 0.35)',
+              margin: '0 auto',
+              position: 'relative',
+              zIndex: 2,
+            }}
+          />
+
+          {/* SECTION 3: Event Logistics Details */}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              fontFamily: "'Courier Prime', Courier, monospace",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '15px',
+                fontWeight: 700,
+                letterSpacing: '0.18em',
+                color: '#171717',
+                lineHeight: 1.3,
+              }}
+            >
+              Date: 1ro de octubre
+            </div>
+            <div
+              style={{
+                fontSize: '14.5px',
+                fontWeight: 700,
+                letterSpacing: '0.18em',
+                color: '#171717',
+                lineHeight: 1.3,
+              }}
+            >
+              Hour: 6:00pm
+            </div>
+            <div
+              style={{
+                fontSize: '13px',
+                fontWeight: 500,
+                letterSpacing: '0.15em',
+                color: '#333333',
+                lineHeight: 1.35,
+                maxWidth: '440px',
+              }}
+            >
+              Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
+            </div>
+            <div
+              style={{
+                fontSize: '12.5px',
+                fontWeight: 700,
+                letterSpacing: '0.18em',
+                color: '#171717',
+                marginTop: '4px',
+                lineHeight: 1.3,
+              }}
+            >
+              Dress code: Oscuro
+            </div>
           </div>
 
           {/* BOTTOM SECTION: Gothic M Emblem & Notice */}
