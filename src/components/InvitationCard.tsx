@@ -36,18 +36,18 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
       'BEGIN:VEVENT',
-      'UID:mute-dejota-20261001T173000@dejotamusic.com',
+      'UID:mute-dejota-20261001T180000@dejotamusic.com',
       'DTSTAMP:20260909T000000Z',
-      'DTSTART:20261001T223000Z',
-      'DTEND:20261002T043000Z',
+      'DTSTART:20261001T230000Z',
+      'DTEND:20261002T050000Z',
       'SUMMARY:MUTE DEJOTA - Release Album Party',
-      `DESCRIPTION:Lanzamiento oficial del álbum MUTE de DEJOTA.\\n\\n"No busco ser escuchado\\, busco que alguien se sienta acompañado en el silencio."\\n\\nInvitado: ${name}\\nFecha: 1 de Octubre del 2026 - 5:30 PM\\nLugar: ELEVATE SPA & WELLNESS Calle 7# 15-40`,
-      'LOCATION:ELEVATE SPA & WELLNESS Calle 7# 15-40',
+      `DESCRIPTION:Lanzamiento oficial del álbum "MUTE" de DEJOTA.\\n\\n"No busco ser escuchado\\, busco que alguien se sienta acompañado en el silencio."\\n\\nInvitado: ${name}\\nDate: 1ro de octubre\\nHour: 6:00pm\\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\\nDress code: Oscuro`,
+      'LOCATION:Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia',
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT2H',
       'ACTION:DISPLAY',
-      'DESCRIPTION:Recordatorio: Lanzamiento MUTE DEJOTA hoy 5:30 PM',
+      'DESCRIPTION:Recordatorio: Lanzamiento "MUTE" DEJOTA hoy 6:00 PM',
       'END:VALARM',
       'END:VEVENT',
       'END:VCALENDAR',
@@ -84,15 +84,15 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nFecha: 1 de Octubre del 2026 - 5:30 PM\nLugar: ELEVATE SPA & WELLNESS Calle 7# 15-40`
+      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
     );
-    const location = encodeURIComponent('ELEVATE SPA & WELLNESS Calle 7# 15-40');
+    const location = encodeURIComponent('Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia');
 
     if (isAndroid) {
       // 1. Android: Trigger system Calendar Intent to launch native installed Calendar app outside the browser
-      // 1 Oct 2026 5:30 PM Colombia (UTC-5) -> 22:30 UTC = 1790893800000 ms
-      const startTime = 1790893800000;
-      const endTime = 1790911800000;
+      // 1 Oct 2026 6:00 PM Colombia (UTC-5) -> 23:00 UTC = 1790895600000 ms
+      const startTime = 1790895600000;
+      const endTime = 1790917200000;
       const androidIntent = `intent://#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item/event;title=${title};description=${details};eventLocation=${location};beginTime=${startTime};endTime=${endTime};end`;
 
       setCalendarToast('Abriendo app de calendario en tu celular...');
@@ -178,11 +178,11 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
   const createGoogleCalendarLink = () => {
     const title = encodeURIComponent('MUTE DEJOTA - Release Album Party');
     const details = encodeURIComponent(
-      `Lanzamiento oficial del álbum MUTE de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nFecha: 1 de Octubre del 2026 - 5:30 PM\nLugar: ELEVATE SPA & WELLNESS Calle 7# 15-40`
+      `Lanzamiento oficial del álbum "MUTE" de DEJOTA.\n\n"No busco ser escuchado, busco que alguien se sienta acompañado en el silencio."\n\nInvitado: ${guestName}\nDate: 1ro de octubre\nHour: 6:00pm\nLocation: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia\nDress code: Oscuro`
     );
-    const location = encodeURIComponent('ELEVATE SPA & WELLNESS Calle 7# 15-40');
-    // 1 Oct 2026 5:30 PM Colombia (UTC-5) is 22:30 UTC to 03:30 UTC next day
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261001T223000Z/20261002T033000Z&ctz=America/Bogota&details=${details}&location=${location}`;
+    const location = encodeURIComponent('Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia');
+    // 1 Oct 2026 6:00 PM Colombia (UTC-5) is 23:00 UTC to 05:00 UTC next day
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261001T230000Z/20261002T050000Z&ctz=America/Bogota&details=${details}&location=${location}`;
   };
 
   return (
@@ -293,19 +293,23 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 
                 {/* Event Metadata */}
                 <div
-                  className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none"
+                  className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center"
                   style={{ transform: 'translateZ(14px)' }}
                 >
-                  <p className="font-bold text-neutral-900 tracking-[0.18em]">1 OCTUBRE 2026 · 5:30 PM</p>
-                  <p className="tracking-[0.16em]">ELEVATE SPA & WELLNESS</p>
-                  <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-700">CALLE 7# 15-40</p>
-                  <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-[#6d1010] font-bold pt-0.5">RELEASE ALBUM PARTY MUTE DEJOTA</p>
+                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
+                  <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
+                  <p className="tracking-[0.14em] text-[9px] sm:text-[9.5px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
+                    Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
+                  </p>
+                  <p className="text-[9px] sm:text-[9.5px] tracking-[0.18em] text-neutral-700 font-medium pt-1">
+                    Dress code: Oscuro
+                  </p>
                 </div>
               </div>
 
               {/* Middle Section: Poetic Manifesto Quote */}
               <div
-                className="my-auto py-2 max-w-[280px] sm:max-w-xs px-2 preserve-3d"
+                className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1 max-w-[280px] sm:max-w-xs px-2 preserve-3d"
                 style={{ transform: 'translateZ(16px)' }}
               >
                 <blockquote
@@ -497,7 +501,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 textAlign: 'center',
               }}
             >
@@ -505,46 +509,47 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
                 style={{
                   fontSize: '15px',
                   fontWeight: 700,
-                  letterSpacing: '0.2em',
+                  letterSpacing: '0.18em',
                   color: '#171717',
                   lineHeight: 1.3,
                 }}
               >
-                1 OCTUBRE 2026 · 5:30 PM
+                Date: 1ro de octubre
               </div>
               <div
                 style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
+                  fontSize: '14.5px',
+                  fontWeight: 700,
                   letterSpacing: '0.18em',
-                  color: '#262626',
+                  color: '#171717',
                   lineHeight: 1.3,
                 }}
               >
-                ELEVATE SPA &amp; WELLNESS
+                Hour: 6:00pm
               </div>
               <div
                 style={{
                   fontSize: '13px',
                   fontWeight: 500,
-                  letterSpacing: '0.18em',
-                  color: '#525252',
-                  lineHeight: 1.3,
+                  letterSpacing: '0.15em',
+                  color: '#333333',
+                  lineHeight: 1.35,
+                  maxWidth: '440px',
                 }}
               >
-                CALLE 7# 15-40
+                Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
               </div>
               <div
                 style={{
                   fontSize: '12px',
-                  fontWeight: 700,
-                  letterSpacing: '0.16em',
-                  color: '#6d1010',
-                  marginTop: '4px',
+                  fontWeight: 600,
+                  letterSpacing: '0.18em',
+                  color: '#383838',
+                  marginTop: '6px',
                   lineHeight: 1.3,
                 }}
               >
-                RELEASE ALBUM PARTY MUTE DEJOTA
+                Dress code: Oscuro
               </div>
             </div>
           </div>
@@ -556,7 +561,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
               zIndex: 2,
               maxWidth: '460px',
               textAlign: 'center',
-              margin: '32px auto',
+              margin: '22px auto 26px auto',
               padding: '0 16px',
             }}
           >

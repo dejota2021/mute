@@ -221,15 +221,19 @@ export const BlackEnvelope: React.FC<BlackEnvelopeProps> = ({
                     TO: <span className="underline underline-offset-4 decoration-[#6c1010]/50">{guest?.name ? guest.name.toUpperCase() : 'DEJOTA'}</span>
                   </div>
                   <div className="w-14 sm:w-20 h-[1px] bg-neutral-400/80 my-3 sm:my-3.5" />
-                  <div className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none">
-                    <p className="font-bold text-neutral-900 tracking-[0.18em]">1 OCTUBRE 2026 · 5:30 PM</p>
-                    <p className="tracking-[0.16em]">ELEVATE SPA & WELLNESS</p>
-                    <p className="text-[9.5px] sm:text-[10px] tracking-[0.18em] text-neutral-700">CALLE 7# 15-40</p>
-                    <p className="tracking-[0.14em] text-[9.5px] sm:text-[10px] text-[#6d1010] font-bold pt-0.5">RELEASE ALBUM PARTY MUTE DEJOTA</p>
+                  <div className="space-y-0.5 sm:space-y-1 font-typewriter text-neutral-800 text-[10px] sm:text-xs tracking-[0.16em] font-semibold select-none text-center">
+                    <p className="font-bold text-neutral-900 tracking-[0.18em]">Date: 1ro de octubre</p>
+                    <p className="font-bold text-neutral-900 tracking-[0.18em]">Hour: 6:00pm</p>
+                    <p className="tracking-[0.14em] text-[9px] sm:text-[9.5px] text-neutral-700 max-w-[270px] mx-auto leading-tight">
+                      Location: Elevate Cl. 7 #15-40, El Poblado, Medellín, Antioquia
+                    </p>
+                    <p className="text-[9px] sm:text-[9.5px] tracking-[0.18em] text-neutral-700 font-medium pt-1">
+                      Dress code: Oscuro
+                    </p>
                   </div>
                 </div>
 
-                <div className="my-auto py-2 max-w-[280px] sm:max-w-xs px-2">
+                <div className="mt-4 mb-auto sm:mt-5 sm:mb-auto py-1 max-w-[280px] sm:max-w-xs px-2">
                   <p className="font-quote italic text-neutral-800 text-sm sm:text-base leading-relaxed tracking-wide">
                     &ldquo;No busco ser escuchado,<br />
                     busco que alguien se sienta<br />
