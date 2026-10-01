@@ -245,18 +245,51 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
   const appsScriptCode = `function doPost(e) {
   try {
     var ss = SpreadsheetApp.openById("${config.spreadsheetId || '1tnDaZRuX-rwVcBI4Xzm-VpgvomDInozaZu99fYYUpvg'}");
-    var sheet = ss.getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
+    var sheet = ss.getSheets()[0];
+    
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Fecha y Hora", "Nombre Completo", "Correo Electrónico", "Código de Ticket", "ID"]);
+      sheet.appendRow(["Fecha de Registro", "Nombre Completo", "Correo Electrónico"]);
+      var headerRange = sheet.getRange(1, 1, 1, 3);
+      headerRange.setFontWeight("bold");
+      headerRange.setBackground("#18181b");
+      headerRange.setFontColor("#ffffff");
     }
-    sheet.appendRow([
-      data.registeredAt || new Date().toLocaleString(),
-      data.name,
-      data.email,
-      data.ticketCode,
-      data.id || ""
-    ]);
+
+    var data = JSON.parse(e.postData.contents);
+
+    // Obtener los encabezados actuales de tu hoja en tiempo real
+    var lastCol = sheet.getLastColumn() || 3;
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var newRowValues = new Array(headers.length);
+    for (var i = 0; i < newRowValues.length; i++) {
+      newRowValues[i] = "";
+    }
+
+    var colFecha = -1;
+    var colNombre = -1;
+    var colCorreo = -1;
+
+    for (var colIdx = 0; colIdx < headers.length; colIdx++) {
+      var headerText = (headers[colIdx] || "").toString().toLowerCase().trim();
+      if (headerText.indexOf("fecha") !== -1 || headerText.indexOf("date") !== -1 || headerText.indexOf("hora") !== -1) {
+        colFecha = colIdx;
+      } else if (headerText.indexOf("nombre") !== -1 || headerText.indexOf("name") !== -1 || headerText.indexOf("completo") !== -1) {
+        colNombre = colIdx;
+      } else if (headerText.indexOf("correo") !== -1 || headerText.indexOf("email") !== -1 || headerText.indexOf("electrónico") !== -1 || headerText.indexOf("electronico") !== -1) {
+        colCorreo = colIdx;
+      }
+    }
+
+    var fechaValor = data.registeredAt || new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" });
+    var nombreValor = data.name || data.nombre || "";
+    var correoValor = data.email || data.correo || "";
+
+    if (colFecha !== -1) newRowValues[colFecha] = fechaValor;
+    if (colNombre !== -1) newRowValues[colNombre] = nombreValor;
+    if (colCorreo !== -1) newRowValues[colCorreo] = correoValor;
+
+    sheet.appendRow(newRowValues);
+
     return ContentService.createTextOutput(JSON.stringify({ "status": "success" }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {

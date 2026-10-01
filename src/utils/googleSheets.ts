@@ -21,7 +21,7 @@ const isWebookPlaceholder = !rawEnvWebhook || rawEnvWebhook.includes('your-scrip
 
 export const INTERNAL_WEBHOOK_URL: string = (
   isWebookPlaceholder
-    ? 'https://script.google.com/macros/s/AKfycbz_m8MRc33wfXgBYqfL8CLhVmA5wMmUOl6kBvlwVufy4TymqwPwsPEix5x045R3vhMr/exec'
+    ? 'https://script.google.com/macros/s/AKfycbzozpeIvAOK9xGJ-oCsYkBEZjdJaMy3HzTqCEoOC1lDc9FtzitKvETz7Jmf0CWVDFjO/exec'
     : rawEnvWebhook.trim()
 );
 

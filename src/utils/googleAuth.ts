@@ -112,11 +112,9 @@ export async function createMuteSpreadsheet(
               rowData: [
                 {
                   values: [
-                    { userEnteredValue: { stringValue: 'Fecha y Hora' } },
+                    { userEnteredValue: { stringValue: 'Fecha de Registro' } },
                     { userEnteredValue: { stringValue: 'Nombre Completo' } },
                     { userEnteredValue: { stringValue: 'Correo Electrónico' } },
-                    { userEnteredValue: { stringValue: 'Código de Ticket' } },
-                    { userEnteredValue: { stringValue: 'ID Registro' } },
                   ],
                 },
               ],
@@ -161,15 +159,13 @@ export async function appendGuestToGoogleSheet(
     }),
     guest.name,
     guest.email,
-    guest.ticketCode,
-    guest.id,
   ];
 
   const rangesToTry = [
-    'A:E',
-    'Sheet1!A:E',
-    'Hoja 1!A:E',
-    'Invitados MUTE!A:E',
+    'A:C',
+    'Sheet1!A:C',
+    'Hoja 1!A:C',
+    'Invitados MUTE!A:C',
   ];
 
   for (const range of rangesToTry) {
