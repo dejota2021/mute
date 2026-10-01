@@ -5,23 +5,35 @@ const STORAGE_KEY_GUESTS = 'mute_dejota_guests';
 const STORAGE_KEY_CONFIG = 'mute_dejota_sheets_config';
 const STORAGE_KEY_CURRENT_GUEST = 'mute_dejota_current_guest';
 
-export const DEFAULT_SPREADSHEET_ID = '1MftaLSnZMugyzBkfzFuRT5lWAFee-PTZnPp56nzeA24';
-export const DEFAULT_SPREADSHEET_URL = `https://docs.google.com/spreadsheets/d/${DEFAULT_SPREADSHEET_ID}/edit`;
+export const DEFAULT_SPREADSHEET_ID = (
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SPREADSHEET_ID) ||
+  '1tnDaZRuX-rwVcBI4Xzm-VpgvomDInozaZu99fYYUpvg'
+).trim();
+
+export const DEFAULT_SPREADSHEET_URL = (
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SPREADSHEET_URL) ||
+  `https://docs.google.com/spreadsheets/d/${DEFAULT_SPREADSHEET_ID}/edit`
+).trim();
 
 // Webhook interno preconfigurado oficial proporcionado por el usuario.
+const rawEnvWebhook = typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GOOGLE_SHEETS_WEBHOOK_URL;
+const isWebookPlaceholder = !rawEnvWebhook || rawEnvWebhook.includes('your-script-id') || rawEnvWebhook.trim() === '';
+
 export const INTERNAL_WEBHOOK_URL: string = (
-  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GOOGLE_SHEETS_WEBHOOK_URL) ||
-  'https://script.google.com/macros/s/AKfycbxHPKoqbFi3xYov9YYs_QHc_swQfo3-zcOA92a4IzJmtfEPflZDGr712AI57tRekodb/exec'
-).trim();
+  isWebookPlaceholder
+    ? 'https://script.google.com/macros/s/AKfycbz_m8MRc33wfXgBYqfL8CLhVmA5wMmUOl6kBvlwVufy4TymqwPwsPEix5x045R3vhMr/exec'
+    : rawEnvWebhook.trim()
+);
 
 export function getSavedConfig(): GoogleSheetsConfig {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const isSavedPlaceholder = !parsed.webhookUrl || parsed.webhookUrl.includes('your-script-id') || parsed.webhookUrl.trim() === '';
       return {
         ...parsed,
-        webhookUrl: (parsed.webhookUrl && parsed.webhookUrl.trim().length > 0) ? parsed.webhookUrl.trim() : INTERNAL_WEBHOOK_URL,
+        webhookUrl: isSavedPlaceholder ? INTERNAL_WEBHOOK_URL : parsed.webhookUrl.trim(),
         spreadsheetId: parsed.spreadsheetId || DEFAULT_SPREADSHEET_ID,
         spreadsheetUrl: parsed.spreadsheetUrl || DEFAULT_SPREADSHEET_URL,
         autoSync: true,
@@ -116,11 +128,21 @@ export async function submitRegistration(name: string, email: string): Promise<{
         },
         body: JSON.stringify({
           id: newGuest.id,
+          // Support both English and Spanish payload keys for maximum compatibility with any Apps Script version
           name: newGuest.name,
+          nombre: newGuest.name,
+          nombreCompleto: newGuest.name,
+          
           email: newGuest.email,
+          correo: newGuest.email,
+          
           ticketCode: newGuest.ticketCode,
+          ticket: newGuest.ticketCode,
+          
           registeredAt: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
           userAgent: navigator.userAgent,
+          // Pass the spreadsheet ID dynamically in case the Apps Script supports it
+          spreadsheetId: config.spreadsheetId || DEFAULT_SPREADSHEET_ID,
         }),
       });
       synced = true;
@@ -144,11 +166,15 @@ export async function submitRegistration(name: string, email: string): Promise<{
     }
   }
 
-  // Save in local guests list
-  const currentList = getRegisteredGuests();
-  const updatedList = [newGuest, ...currentList.filter(g => g.email !== newGuest.email)];
-  localStorage.setItem(STORAGE_KEY_GUESTS, JSON.stringify(updatedList));
-  setCurrentGuest(newGuest);
+  // Save in local guests list safely
+  try {
+    const currentList = getRegisteredGuests();
+    const updatedList = [newGuest, ...currentList.filter(g => g.email !== newGuest.email)];
+    localStorage.setItem(STORAGE_KEY_GUESTS, JSON.stringify(updatedList));
+    setCurrentGuest(newGuest);
+  } catch (storageErr) {
+    console.warn('LocalStorage is not available to save guest:', storageErr);
+  }
 
   return { guest: newGuest, synced, message };
 }
