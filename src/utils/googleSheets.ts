@@ -7,7 +7,7 @@ const STORAGE_KEY_CURRENT_GUEST = 'mute_dejota_current_guest';
 
 export const DEFAULT_SPREADSHEET_ID = (
   (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SPREADSHEET_ID) ||
-  '1tnDaZRuX-rwVcBI4Xzm-VpgvomDInozaZu99fYYUpvg'
+  '19EjEfYWfRvrpZViE0O4zbLFwXn6BvIEBw6e9SWtNs'
 ).trim();
 
 export const DEFAULT_SPREADSHEET_URL = (
@@ -30,12 +30,19 @@ export function getSavedConfig(): GoogleSheetsConfig {
     const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const isSavedPlaceholder = !parsed.webhookUrl || parsed.webhookUrl.includes('your-script-id') || parsed.webhookUrl.trim() === '';
+      // If the saved webhook is empty, a placeholder, or any of the older webhook versions, override it
+      const isSavedPlaceholder = 
+        !parsed.webhookUrl || 
+        parsed.webhookUrl.includes('your-script-id') || 
+        parsed.webhookUrl.trim() === '' ||
+        parsed.webhookUrl.includes('AKfycbxHPKoqbFi3xYov9YYs_QHc_swQfo3-zcOA92a4IzJmtfEPflZDGr712AI57tRekodb') ||
+        parsed.webhookUrl.includes('AKfycbz_m8MRc33wfXgBYqfL8CLhVmA5wMmUOl6kBvlwVufy4TymqwPwsPEix5x045R3vhMr');
+        
       return {
         ...parsed,
         webhookUrl: isSavedPlaceholder ? INTERNAL_WEBHOOK_URL : parsed.webhookUrl.trim(),
-        spreadsheetId: parsed.spreadsheetId || DEFAULT_SPREADSHEET_ID,
-        spreadsheetUrl: parsed.spreadsheetUrl || DEFAULT_SPREADSHEET_URL,
+        spreadsheetId: isSavedPlaceholder ? DEFAULT_SPREADSHEET_ID : (parsed.spreadsheetId || DEFAULT_SPREADSHEET_ID),
+        spreadsheetUrl: isSavedPlaceholder ? DEFAULT_SPREADSHEET_URL : (parsed.spreadsheetUrl || DEFAULT_SPREADSHEET_URL),
         autoSync: true,
         useDirectApi: true,
       };

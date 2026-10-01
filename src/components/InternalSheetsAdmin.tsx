@@ -244,7 +244,7 @@ export const InternalSheetsAdmin: React.FC<InternalSheetsAdminProps> = ({ onBack
 
   const appsScriptCode = `function doPost(e) {
   try {
-    var ss = SpreadsheetApp.openById("${config.spreadsheetId || '1tnDaZRuX-rwVcBI4Xzm-VpgvomDInozaZu99fYYUpvg'}");
+    var ss = SpreadsheetApp.openById("${config.spreadsheetId || '19EjEfYWfRvrpZViE0O4zbLFwXn6BvIEBw6e9SWtNs'}");
     var sheet = ss.getSheets()[0];
     
     if (sheet.getLastRow() === 0) {
